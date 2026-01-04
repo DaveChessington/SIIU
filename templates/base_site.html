@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <!-- Fixed Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <h4 class="text-center mb-4">SIUU</h4>
+        {#        <a href="{% url 'dashboard' %}"#}
+        {#           class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i#}
+        {#                class="bi bi-activity"></i> General</a>#}
+        {#        <a href="#" class="{% if request.resolver_match.url_name == '' %}active{% endif %}"><i#}
+        {#                class="bi bi-clipboard-check"></i> Pedidos</a>#}
+        {#        {% if perms.inventory.global_view_buildings %}#}
+        {#            <a href="{% url 'buildings' %}"#}
+        {#               class="{% if request.resolver_match.url_name == 'buildings' %}active{% endif %}"><i#}
+        {#                    class="bi bi-buildings"></i> Planteles</a>#}
+        {#        {% endif %}#}
+        {#        {% if perms.users.can_manage_users %}#}
+        {#        <a href="#" class="{% if request.resolver_match.url_name == '' %}active{% endif %}"><i#}
+        {#                class="bi bi-people"></i> Usuarios</a>#}
+        {#        {% endif %}#}
+        {#        <a href="#" class="{% if request.resolver_match.url_name == '' %}active{% endif %}"><i#}
+        {#                class="bi bi-box-seam"></i> Inventario</a>#}
+        {% for link in sidebar_links %}
+            <a href="{% if link.url == '#' %} '#' {% else %} {% url link.url %} {% endif %}"
+               class="{% if link.is_active %}active{% endif %}">
+                <i class="bi {{ link.icon }}"></i>{{ link.label }}</a>
+        {% endfor %}
+        <hr style="border-color: rgba(255,255,255,0.2);">
+
+
+        {% load static %}
+
+        <div class="mt-auto dropdown pb-4">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+               id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <img
+                        {#                        src="{% static 'avatars/default.png' %}"#}
+                    {% with profile_pic=user.profile.profile_picture|default_if_none:'default'|default:'default' %}
+                        src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
+                    {% endwith %}
+                        alt="avatar" width="30" height="30" class="rounded-circle">
+                <span class="d-none d-sm-inline mx-1">{{ user.get_partial_name }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                {#                <li><a class="dropdown-item" href="#">New project...</a></li>#}
+                {#                <li><a class="dropdown-item" href="#">Settings</a></li>#}
+                <li><a class="dropdown-item" href="{% url 'profile' %}">Perfil</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <main class="main-content">
+        {% block main_content %}{% endblock %}
+    </main>
+
+{% endblock %}

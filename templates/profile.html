@@ -1,0 +1,49 @@
+{% extends 'base_site.html' %}
+{% load static %}
+{% block main_content %}
+    <style>
+        a {
+            color: white;
+        }
+
+        a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    <section class="vh-100" style="background-color: #f4f5f7;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-lg-6 mb-4 mb-lg-0">
+                    <div class="card mb-3" style="border-radius: .5rem;">
+                        <div class="row g-0">
+                            <div class="col-md-4 gradient-custom text-center text-white"
+                                 style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; background-color: #3266a8; padding: 16px">
+                                <img
+                                        {% with profile_pic=user.profile.profile_picture|default_if_none:'default'|default:'default' %}
+                                            src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
+                                        {% endwith %}
+                                            alt="Avatar" class="img-fluid my-5" style="width: 150px;"/>
+                                <h5>{{ user.get_full_name }}</h5>
+                                <p>Asistente de centro de cómuto en plantel {{ user.building.name }}</p>
+                                <a href="#"><i class="bi bi-pencil-square"></i></a>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body p-4">
+                                    <h6>Información</h6>
+                                    <hr class="mt-0 mb-4">
+                                    <div class="row pt-1">
+                                        <div class="col-12 mb-3">
+                                            <h6>Email</h6>
+                                            <p class="text-muted">{{ user.email }}</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

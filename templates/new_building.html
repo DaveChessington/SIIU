@@ -1,0 +1,83 @@
+{% extends 'base_site.html' %}
+{% block main_content %}
+    {% if perms.inventory.add_building %}
+        <div x-data="formHandler()">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <h3>Detalles del plantel</h3>
+                {{ form.as_p }}
+
+                <hr>
+
+                <h3>Usuarios asociados</h3>
+                <input type="hidden"
+                       name="user_set-TOTAL_FORMS"
+                       :value="count"
+                       id="id_user_set-TOTAL_FORMS">
+                {#            {{ formset.management_form }}#}
+                <input type="hidden"
+                       name="user_set-INITIAL_FORMS"
+                       value="{{ formset.initial_form_count }}"
+                       id="id_user_set-INITIAL_FORMS">
+
+                <input type="hidden"
+                       name="user_set-MIN_NUM_FORMS"
+                       value="0"
+                       id="id_user_set-MIN_NUM_FORMS">
+
+                <input type="hidden"
+                       name="user_set-MAX_NUM_FORMS"
+                       value="1000"
+                       id="id_user_set-MAX_NUM_FORMS">
+
+                <div id="user-form-list">
+                    {% for user_form in formset %}
+                        <div>
+                            {{ user_form.as_p }}
+                        </div>
+                    {% endfor %}
+
+                    <template x-for="(form, index) in extraforms" :key="index">
+                        <div x-html="form.html"></div>
+                    </template>
+                </div>
+
+                <button type="button" @click="addForm">
+                    + Añadir otro usuario
+                </button>
+
+                <button type="submit">Guardar todo</button>
+            </form>
+
+            <template id="form-template">
+                <div>
+                    {{ formset.empty_form.as_p }}
+                </div>
+                <button @click="removeForm(index)" type="button">Eliminar</button>
+            </template>
+        </div>
+
+        <script>
+            function formHandler() {
+                return {
+                    count: {{ formset.total_form_count }},
+                    extraforms: [],
+
+                    addForm() {
+                        let rawHTML = document.getElementById('form-template').innerHTML;
+                        console.log(rawHTML);
+                        let newHTML = rawHTML.replaceAll("__prefix__", this.count);
+                        this.extraforms.push({html: newHTML});
+                        this.count++;
+                    },
+
+                    removeForm(index) {
+                        this.extraforms.splice(index, 1);
+                        this.count--;
+                    }
+                }
+            }
+        </script>
+    {% endif %}
+{% endblock %}

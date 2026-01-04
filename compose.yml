@@ -1,0 +1,16 @@
+services:
+  db:
+    container_name: postgres #nombre del contenedor
+    image: postgres:latest #nombre de la imagen
+    restart: always #Siempre reiniciarse si se llega a detener
+    environment: #variables de entorno
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_USER=user
+      - POSTGRES_DB=inventario
+    ports: #puerto del host: 5433, puerto de la bd: 5432
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

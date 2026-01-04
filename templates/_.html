@@ -1,0 +1,160 @@
+{% extends 'base_site.html' %}
+{% block style %}
+    <style>
+        /* Prevent table from shrinking/growing or columns from shifting */
+        .table-fixed {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        /* Ensure the table cell doesn't hide the dropdown menu */
+        .table-fixed td {
+            overflow: visible !important;
+            vertical-align: middle;
+        }
+
+        /* Maintain a professional height even with 1 row so pagination stays put */
+        .table-container {
+            min-height: 400px;
+            position: relative;
+            overflow: visible !important; /* Critical to show dropdowns */
+        }
+
+        /* Hide Alpine elements before they load */
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Custom scrollbar for the dropdown for better UI */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+    </style>
+{% endblock %}
+{% block main_content %}
+    <div class="table-container">
+    <table class="table table-hover table-fixed">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 25%;">Usuario</th>
+                <th style="width: 20%;">Email</th>
+                <th style="width: 20%;">Plantel</th>
+                <th style="width: 15%;">Estado</th>
+                <th style="width: 20%;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr x-data="{ editing: false }" class="align-middle">
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="flex-grow-1">
+                            <div x-show="!editing" x-text="'{{ user.get_partial_name }}'"></div>
+                            <div x-show="editing" x-cloak>
+                                <input type="text" class="form-control form-control-sm" value="{{ user.get_full_name }}">
+                            </div>
+                        </div>
+                    </div>
+                </td>
+
+                <td class="text-muted small">{{ user.email }}</td>
+
+                <td>
+                    <div x-show="!editing">
+                        {% if user.building %}{{ user.building.name }}{% else %}<span class="text-muted">No establecido</span>{% endif %}
+                    </div>
+
+                    <div x-show="editing" x-cloak
+                         x-data="{
+                            open_select: false,
+                            drop_up: false,
+                            search: '',
+                            selected_name: '{{ user.building.name|default:"Seleccionar..."|escapejs }}',
+                            selected_id: '{{ user.building.id|default:"" }}',
+                            buildings: {{ buildings_json|safe|default:'[]' }},
+
+                            toggle() {
+                                if (!this.open_select) {
+                                    // Calculate space below to decide Drop-up or Drop-down
+                                    let rect = this.$refs.trigger.getBoundingClientRect();
+                                    let spaceBelow = window.innerHeight - rect.bottom;
+                                    this.drop_up = spaceBelow < 250;
+                                }
+                                this.open_select = !this.open_select;
+                            }
+                         }"
+                         class="position-relative">
+
+                        <div x-ref="trigger"
+                             @click="toggle()"
+                             class="form-select form-select-sm cursor-pointer d-flex align-items-center"
+                             style="min-height: 31px;"
+                             x-text="selected_name">
+                        </div>
+
+                        <div x-show="open_select"
+                             @click.away="open_select = false"
+                             x-transition
+                             class="position-absolute z-3 bg-white border rounded shadow-lg p-2 w-100"
+                             :style="drop_up ? 'bottom: 100%; margin-bottom: 5px;' : 'top: 100%; margin-top: 5px;'"
+                             style="max-height: 220px; min-width: 200px;">
+
+                            <input type="text" x-model="search"
+                                   class="form-control form-control-sm mb-2"
+                                   placeholder="Buscar plantel..." @click.stop autofocus>
+
+                            <div class="list-group list-group-flush overflow-y-auto custom-scroll" style="max-height: 160px;">
+                                <template x-for="b in buildings.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))" :key="b.id">
+                                    <button type="button"
+                                            @click="selected_name = b.name; selected_id = b.id; open_select = false;"
+                                            class="list-group-item list-group-item-action border-0 py-1 small text-start"
+                                            :class="selected_id == b.id ? 'bg-primary text-white' : ''"
+                                            x-text="b.name">
+                                    </button>
+                                </template>
+
+                                <div x-show="buildings.filter(i => i.name.toLowerCase().includes(search.toLowerCase())).length === 0"
+                                     class="text-muted small p-2 text-center">
+                                    Sin resultados
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="building" :value="selected_id">
+                    </div>
+                </td>
+
+                <td>
+                    <span class="badge {% if user.is_active %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %} border">
+                        {% if user.is_active %}Activo{% else %}Inactivo{% endif %}
+                    </span>
+                </td>
+
+                <td>
+                    <div class="d-flex gap-2" x-show="!editing">
+                        <button @click="editing = true" class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" title="Clave">
+                            <i class="bi bi-key"></i>
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-2" x-show="editing" x-cloak>
+                        <button type="submit" class="btn btn-sm btn-success" title="Guardar">
+                            <i class="bi bi-check2"></i>
+                        </button>
+                        <button type="button" @click="editing = false" class="btn btn-sm btn-outline-danger" title="Cancelar">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

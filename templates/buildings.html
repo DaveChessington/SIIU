@@ -1,0 +1,17 @@
+{% extends 'base_site.html' %}
+{% block main_content %}
+    <div class="page-header">
+        <h1>Planteles</h1>
+        <a href="{% url 'new_building' %}"><button type="button" class="btn btn-primary">Nuevo plantel</button></a>
+    </div>
+    {% if buildings %}
+        {% for building in buildings %}
+            <div class="card mb-3">
+                <div class="card-header">{{ building.name }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Ningún plantel ha sido creado</p>
+    {% endif %}
+
+{% endblock %}

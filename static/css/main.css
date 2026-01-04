@@ -1,0 +1,33 @@
+body {
+    margin: 0;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    background-color: #343a40;
+    #background-color: #4878a8;
+    padding-top: 20px;
+    color: white;
+}
+
+.sidebar a {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 12px 20px;
+    display: block;
+    text-decoration: none;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    #background-color: #4878a8;
+    color: white;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 30px;
+}
