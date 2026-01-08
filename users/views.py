@@ -43,7 +43,7 @@ class UserManagementMixin(LoginRequiredMixin, PermissionRequiredMixin):
 class UserListView(UserManagementMixin, ListView):
     model = User
     queryset = User.objects.select_related('building').all()
-    template_name = "all_users.html"
+    template_name = "user_list.html"
     context_object_name = "users"
     ordering = ['-date_joined']
 

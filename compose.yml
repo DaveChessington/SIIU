@@ -10,7 +10,7 @@ services:
     ports: #puerto del host: 5433, puerto de la bd: 5432
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
 
 volumes:
   pgdata:

@@ -2,61 +2,80 @@
 {% block main_content %}
     {% if perms.inventory.add_building %}
         <div x-data="formHandler()">
-            <form method="post" novalidate>
+            <form method="post" enctype="multipart/form-data" novalidate>
                 {% csrf_token %}
+               <div class="collaborator-card">
 
-                <h3>Detalles del plantel</h3>
-                {{ form.as_p }}
-
-                <hr>
-
-                <h3>Usuarios asociados</h3>
-                <input type="hidden"
-                       name="user_set-TOTAL_FORMS"
-                       :value="count"
-                       id="id_user_set-TOTAL_FORMS">
-                {#            {{ formset.management_form }}#}
-                <input type="hidden"
-                       name="user_set-INITIAL_FORMS"
-                       value="{{ formset.initial_form_count }}"
-                       id="id_user_set-INITIAL_FORMS">
-
-                <input type="hidden"
-                       name="user_set-MIN_NUM_FORMS"
-                       value="0"
-                       id="id_user_set-MIN_NUM_FORMS">
-
-                <input type="hidden"
-                       name="user_set-MAX_NUM_FORMS"
-                       value="1000"
-                       id="id_user_set-MAX_NUM_FORMS">
-
-                <div id="user-form-list">
-                    {% for user_form in formset %}
-                        <div>
-                            {{ user_form.as_p }}
-                        </div>
-                    {% endfor %}
-
-                    <template x-for="(form, index) in extraforms" :key="index">
-                        <div x-html="form.html"></div>
-                    </template>
+                <!-- COLUMNA IZQUIERDA (SOLO IMAGEN) -->
+                <div class="left-column">
+                    <div class="collaborator-image">
+                        <label class="image-upload-box" for="{{ form.image_file.id_for_label }}">
+                            <div class="upload-content">
+                                <i class="bi bi-image"></i>
+                                <p>Agregar imagen del plantel</p>
+                                <span class="upload-btn">Seleccionar imagen</span>
+                            </div>
+                            {{ form.image_file }}
+                        </label>
+                    </div>
                 </div>
 
-                <button type="button" @click="addForm">
-                    + Añadir otro usuario
-                </button>
+                <!-- COLUMNA DERECHA (DATOS PLANTEL + BOTONES) -->
+                <div class="plantelcard-content">
+                    <h3>Datos del plantel</h3>
 
-                <button type="submit">Guardar todo</button>
+                    <div class="plantel-main-fields">
+                        <label>Nombre del plantel</label>
+                        {{ form.name }}
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="users-actions">
+                        <button type="button" @click="addForm">+ Añadir usuario</button>
+                        <button type="submit">Guardar todo</button>
+                    </div>
+                </div>
+
+                <!-- FORMULARIOS DE USUARIO (DEBAJO DE TODO) -->
+                <div class="users-full-row">
+
+                    <!-- Management form -->
+                    <input type="hidden" name="user_set-TOTAL_FORMS" :value="count">
+                    <input type="hidden" name="user_set-INITIAL_FORMS" value="{{ formset.initial_form_count }}">
+                    <input type="hidden" name="user_set-MIN_NUM_FORMS" value="0">
+                    <input type="hidden" name="user_set-MAX_NUM_FORMS" value="1000">
+
+                    <div id="user-form-list">
+                        {% for user_form in formset %}
+                            <div class="user-card">
+                                {{ user_form.as_p }}
+                            </div>
+                        {% endfor %}
+
+                        <template x-for="(form, index) in extraforms" :key="index">
+                            <div class="user-card" x-html="form.html"></div>
+                        </template>
+                    </div>
+
+                </div>
+
+            </div>
             </form>
 
+            <!-- TEMPLATE -->
             <template id="form-template">
                 <div>
                     {{ formset.empty_form.as_p }}
+                    <button
+                        type="button"
+                        @click="removeForm(index)"
+                        style="margin-top:12px;background:#ef4444;color:white">
+                        Eliminar
+                    </button>
                 </div>
-                <button @click="removeForm(index)" type="button">Eliminar</button>
             </template>
-        </div>
+
+            </div>
 
         <script>
             function formHandler() {

@@ -2,32 +2,535 @@ body {
     margin: 0;
 }
 
+:root{
+    --sidebar-width: 260px;
+    --sidebar-transition: 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Sidebar Container */
 .sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 250px;
-    background-color: #343a40;
-    #background-color: #4878a8;
-    padding-top: 20px;
-    color: white;
+    top: 15px;
+    left: 15px;
+    bottom: 15px;
+    /*height: 100vh;*/
+    width: var(--sidebar-width); /* Slightly wider for better spacing */
+    background-color: #E5E7EB ;
+    border-radius: 20px;
+    color: #0B1F3A;
+    z-index: 1100;
+    transition: width var(--sidebar-transition);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar a {
-    color: rgba(255, 255, 255, 0.8);
-    padding: 12px 20px;
-    display: block;
+.sidebar-header {
+    /* Set a consistent height so the menu below doesn't move */
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    overflow: hidden; /* Prevents text from pushing boundaries */
+}
+
+/*Brand logo*/
+.brand-logo img {
+    width: 120px;
+    height: auto;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); /* Match sidebar speed */
+}
+
+/*Make the brand-logo button look transparent*/
+.btn-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    outline: none !important; /* Removes the box when you click it */
+}
+
+.nav-link-custom {
+    color: #64748B;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
     text-decoration: none;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    /*transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);*/
 }
 
-.sidebar a:hover, .sidebar a.active {
-    background-color: rgba(255, 255, 255, 0.1);
-    #background-color: #4878a8;
-    color: white;
+/* Header/Logo Area */
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    text-align: center;
 }
 
+/* Navigation Links */
+.nav-link-custom {
+    color: #94a3b8; /* Muted text */
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 8px; /* Rounded pill look */
+    margin-bottom: 4px;
+    height: 45px;
+    /*transition: all 0.2s ease;*/
+    /*transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);*/
+}
+
+.nav-icon {
+    font-size: 1.2rem;
+     color: inherit;
+    width: 28px; /* Fixed width so labels stay aligned */
+    /*transition: transform 0.2s ease;*/
+}
+
+/* Hover & Active States */
+.nav-link-custom:hover {
+    background-color: #1E3557;
+    color: #FFFFFF;
+}
+
+.nav-link-custom.active {
+    background-color: #C9A44C; /* Use your primary theme color */
+    color: #0B1F3A;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(201, 164, 76, 0.35);
+}
+
+/*Option selected from the sidebar*/
+/*Increases the size of the icon and text a 20% when selected or active*/
+.nav-link-custom.active .nav-icon {
+    transform: scale(1.2);
+}
+
+/*-------------------------------------Sidebar collapsed-------------------------------------*/
+/*Sidebar collapsed state*/
+body:has(.sidebar.collapsed){
+    --sidebar-width: 80px;
+}
+
+/*Reduce the size of the logo when the sidebar is collapsed*/
+.sidebar.collapsed .brand-logo img{
+    width: 80px;
+}
+
+/*Hide text when collapsed*/
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .profile-role,
+.sidebar.collapsed .profile-name {
+    display: none;
+}
+
+/*Center the header and profile when collapsed*/
+.sidebar.collapsed .sidebar-header,
+.sidebar.collapsed .profile-card{
+    padding: 1.5rem 0; /*1.5rem top and bottom, 0 left and right*/
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+/*Adjust nav link padding for icon centering*/
+.sidebar.collapsed .nav-link-custom{
+    justify-content: center;
+    padding: 12px 0; /*12px top and bottom, 0 left and right*/
+}
+
+/*Ensure the icon stays centered and clear*/
+.sidebar.collapsed .nav-icon{
+    margin: 0;
+    width: auto;
+}
+
+/*Hide the bootstrap dropdown arrow when collapsed*/
+.sidebar.collapsed .dropdown-toggle::after{
+    display: none !important;
+}
+
+/* 1. Remove the Bootstrap p-3 padding when collapsed */
+.sidebar.collapsed .dropdown.p-3 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex;
+    justify-content: center;
+}
+
+/* 2. Ensure the profile-card link centers the avatar */
+.sidebar.collapsed .profile-card {
+    justify-content: center !important;
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* 3. Neutralize any flex-gap or margins */
+.sidebar.collapsed .avatar-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 4. Hide the name/role container entirely so it takes 0px space */
+.sidebar.collapsed .profile-card .d-flex.flex-column {
+    display: none !important;
+}
+
+.sidebar.collapsed .profile-card.dropdown-toggle::after {
+    display: none !important;
+}
+
+/*.btn-toggle h4 {*/
+/*    margin-bottom: 0 !important; !* Remove that mb-4 causing the shift *!*/
+/*    white-space: nowrap;         !* Prevents text from wrapping to a 2nd line *!*/
+/*    transition: opacity 0.3s ease;*/
+/*}*/
+
+/*!*Center the profile image/avatar once the triangle is gone*!*/
+/*.sidebar.collapsed .profile-card{*/
+/*    padding-left: 0 !important;*/
+/*    padding-right: 0 !important;*/
+/*    margin-left: 0 !important;*/
+/*    margin-right: 0 !important;*/
+/*    display: flex !important;*/
+/*    justify-content: center !important;*/
+/*    width: 100%;*/
+/*}*/
+
+/*!* 2. Target the specific link or button inside the profile card *!*/
+/*.sidebar.collapsed .profile-card .dropdown-toggle,*/
+/*.sidebar.collapsed .profile-card a {*/
+/*    padding-left: 0 !important;*/
+/*    padding-right: 0 !important;*/
+/*    margin: 0 auto !important;*/
+/*    display: flex !important;*/
+/*    justify-content: center !important;*/
+/*    align-items: center !important;*/
+/*    width: 100%; !* Ensures the clickable area spans the width *!*/
+/*}*/
+
+/*!* 3. Remove any margin-right from the icon/avatar wrapper *!*/
+/*.sidebar.collapsed .avatar-wrapper {*/
+/*    margin-right: 0 !important;*/
+/*    padding: 0 !important;*/
+/*}*/
+
+/* Profile Section at Bottom */
+.profile-card {
+    padding: 8px;
+    border-radius: 12px;
+    /*transition: background 0.2s;*/
+    color: #0B1F3A;
+}
+
+/*Sets the height of each one of the lines (user name and user role)
+to 1.2 times (120%) the element's current font-size*/
+.line-height-sm{
+    line-height: 1.2;
+}
+
+.text-muted-custom {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.profile-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0B1F3A !important;
+}
+
+.profile-role {
+    font-size: 0.75rem;
+    color: black;
+    display: block;
+}
+
+.sidebar-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 1.5rem 0;
+}
+
+
+/* 1. The Container: The "Floating Card" */
+.dropdown-menu {
+    border: none !important;
+    border-radius: 16px !important; /* High rounding */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    padding: 8px !important; /* Space so items don't touch the container edge */
+    margin-top: 10px !important; /* Gap from the trigger button */
+    overflow: hidden;
+    /*animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);*/
+}
+
+/* 2. The Selection: The "Pill" Look */
+.dropdown-item {
+    border-radius: 10px !important; /* Rounded corners for the highlight */
+    padding: 10px 15px !important;
+    margin-bottom: 2px;
+    color: #fafafb; /* Slate 600 */
+    font-weight: 500;
+    /*transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);*/
+}
+
+/* 3. Hover & Active States */
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #0ea5e9 !important; /* Sky Blue */
+}
+
+/*Adding transitions to the base clases for an smoother movement when hovered*/
+
+.nav-link-custom,
+.profile-card,
+.avatar-wrapper{
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /*display: inline-flex; !* Helps transform work correctly on small elements *!*/
+}
+
+/* 2. Apply the scale when hovered */
+.nav-link-custom:hover,
+.profile-card:hover {
+    transform: scale(1.05); /* 5% is the 'sweet spot' for UI elements */
+    /*z-index: 10; !* Ensures the 'growing' element stays on top of others *!*/
+}
+
+/* 3. If you want the avatar specifically to pop even more */
+.profile-card:hover .avatar-wrapper {
+    transform: scale(1.1);
+}
+
+/* Main Content Adjustment */
 .main-content {
-    margin-left: 250px;
-    padding: 30px;
+    margin-left: var(--sidebar-width);
+    padding: 40px;
+    width: auto;
+    min-height: 100vh;
+    transition: margin-left var(--sidebar-transition); /* MUST match sidebar transition */
 }
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: var(--sidebar-width);
+}
+
+
+/*Add building form*/
+/* ==============================
+   IMAGEN / UPLOAD
+============================== */
+.image-upload-box {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-upload-box:hover {
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.image-upload-box input[type="file"] {
+    display: none;
+}
+
+.upload-content {
+    text-align: center;
+    color: #475569;
+}
+
+.upload-content i {
+    font-size: 3rem;
+    color: #38bdf8;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.upload-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 14px;
+    background: #38bdf8;
+    color: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+
+/* ==============================
+   TARJETA GENERAL
+============================== */
+.collaborator-card {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-width: 960px;
+    margin: 0 auto 30px auto;
+}
+
+
+/* ==============================
+   COLUMNA IZQUIERDA (IMAGEN)
+============================== */
+.left-column {
+    width: 260px;
+}
+
+.collaborator-image {
+    width: 260px;
+    height: 260px;
+    border: 2px dashed #94a3b8;
+    border-radius: 14px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.collaborator-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+
+/* ==============================
+   DATOS DEL PLANTEL
+============================== */
+.plantelcard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.plantel-main-fields label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.plantel-main-fields input,
+.plantel-main-fields select,
+.plantel-main-fields textarea {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.plantel-main-fields input:focus,
+.plantel-main-fields select:focus,
+.plantel-main-fields textarea:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
+}
+
+
+/* ==============================
+   SECCIÓN USUARIOS (FILA COMPLETA)
+============================== */
+.users-full-row {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 24px;
+}
+
+
+/* ==============================
+   TARJETA FORMULARIO USUARIO
+============================== */
+.user-card {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.user-card p {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.user-card label {
+    display: block;
+    width: 100%;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 5px;
+}
+
+.user-card input,
+.user-card select,
+.user-card textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+}
+
+.user-card input:focus,
+.user-card select:focus,
+.user-card textarea:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56,189,248,0.2);
+}
+.users-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+button[type="submit"] {
+    background: #38bdf8;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button[type="button"] {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+button[type="button"]:hover {
+    background: #cbd5e1;
+}
+
+
+
+

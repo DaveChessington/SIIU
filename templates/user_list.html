@@ -1,0 +1,235 @@
+{% extends 'base_site.html' %}
+
+{% block  style %}
+    <style>
+        /* Toolbar Styling */
+        .nav-pills .nav-link {
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: #a5d4e8;
+            color: #367b99;
+        }
+
+        /* Make the Search Pill feel modern */
+        .search-pill-container .form-control {
+            border-color: #dee2e6;
+            font-size: 0.85rem;
+        }
+
+        .search-pill-container .form-control:focus {
+            background-color: #fff !important;
+            border-color: #367b99;
+            box-shadow: none;
+        }
+
+        /* Vertical divider inside the toolbar */
+        .vr {
+            height: 24px;
+            align-self: center;
+        }
+
+        /*Table Styles*/
+
+        {#/* Prevent table from shrinking/growing or columns from shifting */#}
+        {#.table-fixed {#}
+        {#    table-layout: fixed;#}
+        {#    width: 100%;#}
+        {#  #}
+        #}#}
+        {##}
+        {#/* Ensure the table cell doesn't hide the dropdown menu */#}
+        {#.table-fixed td {#}
+        {#    overflow: visible !important;#}
+        {#    vertical-align: middle;#}
+        {#  #}
+        #}#}
+        {##}
+        {#/* Maintain a professional height even with 1 row so pagination stays put */#}
+        {#.table-container {#}
+        {#    min-height: 400px;#}
+        {#    position: relative;#}
+        {#    overflow: visible !important; /* Critical to show dropdowns */#}
+        {#  #}
+        #}#}
+        {##}
+        {#/* Hide Alpine elements before they load */#}
+        {#[x-cloak] {#}
+        {#    display: none !important;#}
+        {#  #}
+        #}#}
+        {##}
+        {#/* Custom scrollbar for the dropdown for better UI */#}
+        {#.custom-scroll::-webkit-scrollbar {#}
+        {#    width: 6px;#}
+        {#  #}
+        #}#}
+        {##}
+        {#.custom-scroll::-webkit-scrollbar-thumb {#}
+        {#    background: #ccc;#}
+        {#    border-radius: 10px;#}
+        {#  #}
+        #}#}
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    {% if perms.users.can_manage_users %}
+        {% load static %}
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold text-dark mb-0">Usuarios</h2>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 bg-white p-2 rounded border shadow-sm mb-4">
+
+            <ul class="nav nav-pills small px-2">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Todos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-muted" href="#">Activos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-muted" href="#">Inactivos</a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-2 ms-auto pe-2">
+
+                <form method="GET" action="." class="position-relative">
+                    <div class="input-group input-group-sm search-pill-container">
+                <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3">
+                    <i class="bi bi-search text-muted small"></i>
+                </span>
+                        <input type="search" name="q"
+                               class="form-control bg-light border-start-0 rounded-end-pill ps-0"
+                               placeholder="Buscar..."
+                               style="width: 180px;">
+                    </div>
+                </form>
+
+                <div class="vr mx-1 my-1 text-secondary opacity-25"></div>
+
+                <a href="#" class="btn btn-sm btn-primary rounded-pill px-3 d-flex align-items-center shadow-sm">
+                    <i class="bi bi-person-add me-1"></i>
+                    Nuevo Usuario
+                </a>
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Plantel</th>
+                <th>Estado</th>
+                <th>Rol</th>
+                <th>Fecha de registro</th>
+                <th>Último inicio de sesión</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr class="align-middle">
+                    <td class="d-flex align-items-center gap-2">
+                        <img
+                                {% with profile_pic=user.profile.profile_picture|default:'default' %}
+                                    src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
+                                {% endwith %}
+                                    alt="avatar" width="30" height="30" class="rounded-circle">
+                        {{ user.get_partial_name }}
+                    </td>
+                    <td>
+                        {{ user.email }}
+                    </td>
+                    <td>
+                        {% if user.building %}{{ user.building }}{% else %}No establecido{% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_active %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ user.role }}
+                    </td>
+                    <td>
+                        {{ user.date_joined|date:"j F, Y P" }}
+                    </td>
+                    <td>
+                        {% if user.last_login %}Hace {{ user.last_login|timesince }}{% else %}No ha iniciado
+                            sesión{% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a
+                                    @click="editing= true"
+                                    {#                                        href="{% url 'user_update' user.pk %}"#}
+                                    href="#"
+                                    class="btn btn-sm btn-outline-primary"
+                                    title="Editar usuario">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <a
+                                    {#                                        href="{% url 'user_update' user.pk %}"#}
+                                    href="#"
+                                    class="btn btn-sm btn-outline-warning"
+                                    title="Restablecer contraseña">
+                                <i class="bi bi-key"></i>
+                            </a>
+
+                            <div x-data="{ open: false }">
+                                <button @click="open = true"
+                                        class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
+                                        title="{% if user.is_active %}Desactivar{% else %}Activar{% endif %}">
+                                    <i class="bi {% if user.is_active %}bi-person-x{% else %}bi-person-check{% endif %}"></i>
+                                </button>
+
+                                <template x-if="open">
+                                    <div class="modal fade show d-block" tabindex="-1"
+                                         style="background: rgba(0,0,0,0.5);">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content shadow-lg">
+                                                <div class="modal-body text-center py-4">
+                                                    <h6>¿Confirmar cambio de estado?</h6>
+                                                    <p class="small text-muted">Vas a
+                                                        {% if user.is_active %}
+                                                            desactivar{% else %}activar{% endif %}
+                                                        a {{ user.get_partial_name }}.</p>
+                                                    <div class="d-flex justify-content-center gap-2 mt-3">
+                                                        <button @click="open = false"
+                                                                class="btn btn-sm btn-light">
+                                                            Cancelar
+                                                        </button>
+                                                        <form method="post">
+                                                            {#                                                                  action="{% url 'user_toggle' user.pk %}">#}
+                                                            {% csrf_token %}
+                                                            <button type="submit"
+                                                                    class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                                                Confirmar
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

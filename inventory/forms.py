@@ -7,9 +7,10 @@ from users.forms import UserRegistrationForm
 from users.models import User
 
 class BuildingForm(forms.ModelForm):
+    image_file = forms.ImageField(required=False)
     class Meta:
         model = Building
-        fields = ['name']
+        fields = ['name', 'image_file']
 
 UserFormSet = inlineformset_factory(
     Building,
