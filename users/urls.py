@@ -8,4 +8,5 @@ urlpatterns=[
     path('profile', views.profileView, name='profile'),
     path('user_list', views.UserListView.as_view(), name='user_list'),
     path('new_user', views.UserRegWithRoleAndBuildingView.as_view(), name='new_user'),
+    path('change_user_status/<int:user_id>/', views.changeUserStatus, name='change_user_status'),
 ]

@@ -1,7 +1,7 @@
 {% extends 'base_site.html' %}
 {% block main_content %}
     {% if perms.users.can_manage_users %}
-        <form method="post">
+        <form method="post" novalidate>
             {% csrf_token %}
             <h3>Nuevo usuario</h3>
             <hr>

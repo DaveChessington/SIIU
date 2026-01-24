@@ -1,0 +1,41 @@
+/* Modern Table */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            /* Gap between rows */
+        }
+
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            /*background-color: transparent;*/
+        }
+
+        .table tbody tr {
+            background-color: transparent;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+        .table tbody tr:hover {
+            transform: scale(0.975);
+            z-index: 10;
+        }
+
+        .table tbody td {
+            border: none;
+            padding: 1rem;
+            /* GLASS EFFECT: Blend with your card style */
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+            backdrop-filter: blur(10px);        /* Blurs elements behind row */
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+
+            /* BORDER & RADIUS: Match card definition */
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .table tbody td:first-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        } 

@@ -1,235 +1,320 @@
 {% extends 'base_site.html' %}
+{% block style %}
+<style>
+    /* Toolbar Styling */
+    .nav-pills .nav-link {
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
 
-{% block  style %}
-    <style>
-        /* Toolbar Styling */
-        .nav-pills .nav-link {
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-        }
+    .nav-pills .nav-link.active {
+        background-color: #a5d4e8;
+        color: #367b99;
+    }
 
-        .nav-pills .nav-link.active {
-            background-color: #a5d4e8;
-            color: #367b99;
-        }
+    /* Make the Search Pill feel modern */
+    .search-pill-container .form-control {
+        border-color: #dee2e6;
+        font-size: 0.85rem;
+    }
 
-        /* Make the Search Pill feel modern */
-        .search-pill-container .form-control {
-            border-color: #dee2e6;
-            font-size: 0.85rem;
-        }
+    .search-pill-container .form-control:focus {
+        background-color: #fff !important;
+        border-color: #367b99;
+        box-shadow: none;
+    }
 
-        .search-pill-container .form-control:focus {
-            background-color: #fff !important;
-            border-color: #367b99;
-            box-shadow: none;
-        }
-
-        /* Vertical divider inside the toolbar */
-        .vr {
-            height: 24px;
-            align-self: center;
-        }
-
-        /*Table Styles*/
-
-        {#/* Prevent table from shrinking/growing or columns from shifting */#}
-        {#.table-fixed {#}
-        {#    table-layout: fixed;#}
-        {#    width: 100%;#}
-        {#  #}
-        #}#}
-        {##}
-        {#/* Ensure the table cell doesn't hide the dropdown menu */#}
-        {#.table-fixed td {#}
-        {#    overflow: visible !important;#}
-        {#    vertical-align: middle;#}
-        {#  #}
-        #}#}
-        {##}
-        {#/* Maintain a professional height even with 1 row so pagination stays put */#}
-        {#.table-container {#}
-        {#    min-height: 400px;#}
-        {#    position: relative;#}
-        {#    overflow: visible !important; /* Critical to show dropdowns */#}
-        {#  #}
-        #}#}
-        {##}
-        {#/* Hide Alpine elements before they load */#}
-        {#[x-cloak] {#}
-        {#    display: none !important;#}
-        {#  #}
-        #}#}
-        {##}
-        {#/* Custom scrollbar for the dropdown for better UI */#}
-        {#.custom-scroll::-webkit-scrollbar {#}
-        {#    width: 6px;#}
-        {#  #}
-        #}#}
-        {##}
-        {#.custom-scroll::-webkit-scrollbar-thumb {#}
-        {#    background: #ccc;#}
-        {#    border-radius: 10px;#}
-        {#  #}
-        #}#}
-    </style>
+    /* Vertical divider inside the toolbar */
+    .vr {
+        height: 24px;
+        align-self: center;
+    }
+</style>
 {% endblock %}
 
 {% block main_content %}
-    {% if perms.users.can_manage_users %}
-        {% load static %}
-        
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="fw-bold text-dark mb-0">Usuarios</h2>
+{% load static %}
+{% if perms.users.can_manage_users %}
+<div class="users-table-container" x-data="
+             {
+                search: '',
+                filters: {
+                status: 'None',
+                },
+                users: {{ users_json }},
+                currentPage: 1,
+                maxNumRowsPerPage: 4,
+                //
+                totalPages: 0,
+
+                init(){
+                // Prevents the user from getting stuck on an empty page after filtering
+                    this.$watch('search', () => this.currentPage = 1);
+                    this.$watch('filters.status', () => this.currentPage = 1);
+                    //
+                    this.totalPages = Math.ceil(this.users.length / this.maxNumRowsPerPage);
+                },
+                get filteredUsers(){
+                // Filters the users conforming to the filters applied, as well as any search
+                    let filteredResults = this.users.filter(u =>
+                        u.email.toLowerCase().includes(this.search.toLowerCase()) ||
+                        u.name.toLowerCase().includes(this.search.toLowerCase()));
+
+                    if (this.filters.status !== 'None') {
+                        return filteredResults.filter(u => {
+                            return this.filters.status === 'active' ? u.is_active : !u.is_active;
+                        });
+                    }
+
+                    return filteredResults;
+                },
+                get calcNumPages(){
+                // Calculates the total number of buttons for pagination according to the filtered users
+
+                    // total pages
+                    //const totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
+                    this.totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
+
+                    // buttons to be shown
+                    const maxButtons = 5;
+
+                    let start = this.currentPage - Math.floor(maxButtons / 2); // current page, plus the smallest integer due to the division of maxButtons over two
+                    let end = this.currentPage + Math.floor(maxButtons / 2); // current page, minus the smallest integer due to the division of maxButtons over two
+
+                    // Adjust if we are near the beginning
+                    if (start <= 1) {
+                        //In case the starting point is less than or equal to 1:
+                        //  1. start will be equal to one
+                        //  2. end will be equal to smallest value between maxButtons and totalRows over maxNumRowsPerPage
+
+                        start = 1;
+                        end = Math.min(maxButtons, this.totalPages);
+                    }
+
+                    // Adjust if we are near the end
+                    if (end >= this.totalPages) {
+                        //In case the ending point is greater than totalRows:
+                        //  1. end will be equal to totalRows
+                        //  2. start will be equal to the greatest value between one and totalRows - maxButtons + 1
+
+                        end = this.totalPages;
+                        start = Math.max(1, this.totalPages - maxButtons + 1);
+                    }
+
+                    // Create the array of page numbers
+                    const pages = [];
+                    for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                    }
+                    return pages;
+
+                },
+                get usersToDisplay(){
+                {# Returns the exact users to be displayed #}
+                    let minLimit = (this.currentPage * this.maxNumRowsPerPage) - this.maxNumRowsPerPage;
+                    let maxLimit = this.currentPage * this.maxNumRowsPerPage;
+
+                    return this.filteredUsers.slice(minLimit, maxLimit);
+
+                },
+             }">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-dark mb-0">Usuarios</h2>
+    </div>
+
+    <!-- Messages container -->
+    {% if messages %}
+    <div class="messages-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        {% for message in messages %}
+        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 5000)" x-show="show"
+            x-transition.duration.500ms
+            class="alert {% if message.tags == 'success' %}bg-green-500{% else %}bg-red-500{% endif %} text-white p-4 rounded-lg shadow-xl mb-2 flex items-center justify-between min-w-[300px]">
+            <span>{{ message }}</span>
+            <button @click="show = false" class="ml-4 font-bold">&times;</button>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!--  -->
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 bg-white p-2 rounded border shadow-sm mb-4">
+    <div
+        class="d-flex flex-wrap align-items-center justify-content-between gap-3 bg-white p-2 rounded border shadow-sm mb-4">
 
-            <ul class="nav nav-pills small px-2">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">Todos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-muted" href="#">Activos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-muted" href="#">Inactivos</a>
-                </li>
-            </ul>
+        <ul class="nav nav-pills small px-2">
+            <li class="nav-item">
+                <button @click="filters.status = 'None'" class="btn-user-status-filter"
+                    :class="{'active' : filters.status === 'None'}">Todos
+                </button>
+            </li>
+            <li class="nav-item">
+                <button @click="filters.status = 'active'" class="btn-user-status-filter"
+                    :class="{'active' : filters.status === 'active'}">Activos
+                </button>
+            </li>
+            <li class="nav-item">
+                <button @click="filters.status = 'inactive'" class="btn-user-status-filter"
+                    :class="{'active' : filters.status === 'inactive'}">Inactivos
+                </button>
+            </li>
+        </ul>
 
-            <div class="d-flex align-items-center gap-2 ms-auto pe-2">
+        <div class="d-flex align-items-center gap-2 ms-auto pe-2">
 
-                <form method="GET" action="." class="position-relative">
-                    <div class="input-group input-group-sm search-pill-container">
-                <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3">
-                    <i class="bi bi-search text-muted small"></i>
-                </span>
-                        <input type="search" name="q"
-                               class="form-control bg-light border-start-0 rounded-end-pill ps-0"
-                               placeholder="Buscar..."
-                               style="width: 180px;">
-                    </div>
-                </form>
-
-                <div class="vr mx-1 my-1 text-secondary opacity-25"></div>
-
-                <a href="#" class="btn btn-sm btn-primary rounded-pill px-3 d-flex align-items-center shadow-sm">
-                    <i class="bi bi-person-add me-1"></i>
-                    Nuevo Usuario
-                </a>
+            <!-- Search bar -->
+            <div>
+                <div class="input-group input-group-sm search-pill-container">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3">
+                        <i class="bi bi-search text-muted small"></i>
+                    </span>
+                    <input type="search" name="q" x-model="search"
+                        class="form-control bg-light border-start-0 rounded-end-pill ps-0" placeholder="Buscar..."
+                        style="width: 450px;">
+                </div>
             </div>
-        </div>
 
-        <table class="table table-hover">
+            <div class="vr mx-1 my-1 text-secondary opacity-25"></div>
+
+            <a href="{% url 'new_user' %}"
+                class="btn btn-sm btn-primary rounded-pill px-3 d-flex align-items-center shadow-sm">
+                <i class="bi bi-person-add me-1"></i>
+                Nuevo Usuario
+            </a>
+        </div>
+    </div>
+
+    <span>
+        <p x-text="`Resultados encontrados: ${filteredUsers.length}`"></p>
+    </span>
+
+    {# Users table #}
+    <div class="table-resposive-md">
+        <table class="table table-striped table-hover">
             <thead class="table-dark">
-            <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Plantel</th>
-                <th>Estado</th>
-                <th>Rol</th>
-                <th>Fecha de registro</th>
-                <th>Último inicio de sesión</th>
-                <th>Acciones</th>
-            </tr>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Plantel</th>
+                    <th>Estado</th>
+                    <th>Rol</th>
+                    <th>Fecha de registro</th>
+                    <th>Último inicio de sesión</th>
+                    <th>Acciones</th>
+                </tr>
             </thead>
             <tbody>
-            {% for user in users %}
-                <tr class="align-middle">
-                    <td class="d-flex align-items-center gap-2">
-                        <img
-                                {% with profile_pic=user.profile.profile_picture|default:'default' %}
-                                    src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
-                                {% endwith %}
-                                    alt="avatar" width="30" height="30" class="rounded-circle">
-                        {{ user.get_partial_name }}
-                    </td>
-                    <td>
-                        {{ user.email }}
-                    </td>
-                    <td>
-                        {% if user.building %}{{ user.building }}{% else %}No establecido{% endif %}
-                    </td>
-                    <td>
-                        {% if user.is_active %}
-                            <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
-                        {% else %}
-                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactivo</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ user.role }}
-                    </td>
-                    <td>
-                        {{ user.date_joined|date:"j F, Y P" }}
-                    </td>
-                    <td>
-                        {% if user.last_login %}Hace {{ user.last_login|timesince }}{% else %}No ha iniciado
-                            sesión{% endif %}
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2">
-                            <a
-                                    @click="editing= true"
-                                    {#                                        href="{% url 'user_update' user.pk %}"#}
-                                    href="#"
-                                    class="btn btn-sm btn-outline-primary"
-                                    title="Editar usuario">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
+                <template x-for="user in usersToDisplay" :key="user.id">
+                    <tr>
+                        <td>
+                            <div>
+                                <img :src="user.profile_pic_url" alt="Profile picture" width="35" height="35"
+                                    class="rounded-circle shadow-sm border border-2 border-white">
+                                <span x-text="user.name"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span x-text="user.email"></span>
+                        </td>
+                        <td>
+                            <span x-text="user.building"></span>
+                        </td>
+                        <td>
+                            <span :class="user.is_active
+                                            ? 'bg-success-subtle text-success border-success-subtle'
+                                            : 'bg-secondary-subtle text-secondary border-secondary-subtle'"
+                                class="badge border" x-text="user.is_active ? 'Activo' : 'Inactivo'"></span>
+                        </td>
+                        <td>
+                            <span x-text="user.role"></span>
+                        </td>
+                        <td>
+                            <span x-text="user.date_joined"></span>
+                        </td>
+                        <td>
+                            <span x-text="user.last_login"></span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
 
-                            <a
-                                    {#                                        href="{% url 'user_update' user.pk %}"#}
-                                    href="#"
-                                    class="btn btn-sm btn-outline-warning"
-                                    title="Restablecer contraseña">
-                                <i class="bi bi-key"></i>
-                            </a>
+                                <a href="#" class="btn btn-sm btn-outline-primary" title="Editar usuario">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
 
-                            <div x-data="{ open: false }">
-                                <button @click="open = true"
-                                        class="btn btn-sm {% if user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}"
-                                        title="{% if user.is_active %}Desactivar{% else %}Activar{% endif %}">
-                                    <i class="bi {% if user.is_active %}bi-person-x{% else %}bi-person-check{% endif %}"></i>
-                                </button>
+                                <a href="#" class="btn btn-sm btn-outline-warning" title="Restablecer contraseña">
+                                    <i class="bi bi-key"></i>
+                                </a>
 
-                                <template x-if="open">
-                                    <div class="modal fade show d-block" tabindex="-1"
-                                         style="background: rgba(0,0,0,0.5);">
-                                        <div class="modal-dialog modal-sm modal-dialog-centered">
-                                            <div class="modal-content shadow-lg">
-                                                <div class="modal-body text-center py-4">
-                                                    <h6>¿Confirmar cambio de estado?</h6>
-                                                    <p class="small text-muted">Vas a
-                                                        {% if user.is_active %}
-                                                            desactivar{% else %}activar{% endif %}
-                                                        a {{ user.get_partial_name }}.</p>
-                                                    <div class="d-flex justify-content-center gap-2 mt-3">
-                                                        <button @click="open = false"
-                                                                class="btn btn-sm btn-light">
-                                                            Cancelar
-                                                        </button>
-                                                        <form method="post">
-                                                            {#                                                                  action="{% url 'user_toggle' user.pk %}">#}
-                                                            {% csrf_token %}
-                                                            <button type="submit"
-                                                                    class="btn btn-sm {% if user.is_active %}btn-danger{% else %}btn-success{% endif %}">
-                                                                Confirmar
+                                <div x-data="{ open: false }">
+                                    <button @click="open = true"
+                                        :class="user.is_active ? 'btn-outline-danger' : 'btn-outline-success'"
+                                        class="btn btn-sm" :title="user.is_active ? 'Desactivar' : 'Activar'">
+                                        <i :class="user.is_active ? 'bi bi-person-x' : 'bi bi-person-check'"></i>
+                                    </button>
+
+                                    <template x-if="open">
+                                        <div class="modal fade show d-block" tabindex="-1"
+                                            style="background: rgba(0,0,0,0.5);">
+                                            <div class="modal-dialog modal-sm modal-dialog-centered">
+                                                <div class="modal-content shadow-lg">
+                                                    <div class="modal-body text-center py-4">
+                                                        <h6>¿Confirmar cambio de estado?</h6>
+                                                        <span class="small text-muted"
+                                                            x-text="`Vas a ${user.is_active ? 'desactivar' : 'activar'} a ${user.name}` ">
+
+                                                        </span>
+                                                        <div class="d-flex justify-content-center gap-2 mt-3">
+                                                            <button @click="open = false" class="btn btn-sm btn-light">
+                                                                Cancelar
                                                             </button>
-                                                        </form>
+                                                            <form method="post"
+                                                                :action="`/user/change_user_status/${user.id}/`">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-sm"
+                                                                    :class="user.is_active ? 'btn-danger' : 'btn-success'">
+                                                                    Confirmar
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </template>
+                                    </template>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
+                        </td>
+
+                    </tr>
+                </template>
             </tbody>
         </table>
-    {% endif %}
+    </div>
+
+    {# Pagination #}
+    <nav aria-label="...">
+        <ul class="pagination">
+            <li class="page-item">
+                <button class="btn-user-navigation-controller" :class="{'disabled' : currentPage <= 1}"
+                    :disabled="currentPage <= 1" @click="currentPage--">
+                    Anterior
+                </button>
+            </li>
+            <template x-for="i in calcNumPages" :key="i">
+                <li class="page-item">
+                    <button class="btn-user-navigation-controller" @click="currentPage = i"
+                        :class="{'active' : i == currentPage}" x-text="i">
+                    </button>
+                </li>
+            </template>
+            <li class="page-item">
+                <button class="btn-user-navigation-controller" :class="{'disabled' : currentPage >= totalPages}"
+                    :disabled="currentPage >= totalPages" @click="currentPage++">
+                    Siguiente
+                </button>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endif %}
 {% endblock %}

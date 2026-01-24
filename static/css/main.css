@@ -41,12 +41,84 @@ body {
 }
 
 /*Make the brand-logo button look transparent*/
-.btn-toggle {
+.btn-toggle{
     background: none;
     border: none;
     padding: 0;
     color: inherit;
     outline: none !important; /* Removes the box when you click it */
+}
+
+/*.btn-user-status-filter{*/
+/*    padding: 5px 18px;*/
+/*}*/
+
+/*.btn-user-status-filter.active{*/
+/*    background: #0ea5e9;*/
+/*    color: white;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+/*.btn-user-status-filter:hover{*/
+/*    background: #64748B;*/
+/*    color: white;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+/*User status filter buttons and pagination button*/
+/* 1. Base Reset & Typography */
+.btn-user-status-filter,
+.btn-user-navigation-controller{
+    background: transparent;
+    border: none;
+    padding: 6px 20px;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    /* transition is crucial for the "shrinking" animation */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none !important;
+    display: inline-block;
+}
+
+.btn-user-status-filter:hover:not(.active),
+.btn-user-navigation-controller:hover:not(.disabled):not(.active):not(:disabled){
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    color: #0f172a;
+}
+
+/* The "Smaller" Active State */
+.btn-user-status-filter.active,
+.btn-user-navigation-controller.active {
+    background: #0ea5e9;
+    color: #ffffff;
+    border-radius: 8px;
+
+    /* This makes it look smaller */
+    transform: scale(0.92);
+
+    /* Adjusting padding slightly helps the "compact" feel */
+    padding: 5px 16px;
+
+    /* Optional: a slightly deeper shadow makes it look "pressed in" */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 4. Parent Container Enhancement (Optional) */
+/*.nav-pills {*/
+/*    background-color: #f8fafc; !* Light background to make the white/blue buttons pop *!*/
+/*    padding: 4px;*/
+/*    border-radius: 10px;*/
+/*    display: inline-flex; !* Keeps the bar compact *!*/
+/*}*/
+/*--------------------------------------------------------------------------------------*/
+
+/*Pagination centering*/
+.pagination{
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-link-custom {
@@ -180,41 +252,6 @@ body:has(.sidebar.collapsed){
     display: none !important;
 }
 
-/*.btn-toggle h4 {*/
-/*    margin-bottom: 0 !important; !* Remove that mb-4 causing the shift *!*/
-/*    white-space: nowrap;         !* Prevents text from wrapping to a 2nd line *!*/
-/*    transition: opacity 0.3s ease;*/
-/*}*/
-
-/*!*Center the profile image/avatar once the triangle is gone*!*/
-/*.sidebar.collapsed .profile-card{*/
-/*    padding-left: 0 !important;*/
-/*    padding-right: 0 !important;*/
-/*    margin-left: 0 !important;*/
-/*    margin-right: 0 !important;*/
-/*    display: flex !important;*/
-/*    justify-content: center !important;*/
-/*    width: 100%;*/
-/*}*/
-
-/*!* 2. Target the specific link or button inside the profile card *!*/
-/*.sidebar.collapsed .profile-card .dropdown-toggle,*/
-/*.sidebar.collapsed .profile-card a {*/
-/*    padding-left: 0 !important;*/
-/*    padding-right: 0 !important;*/
-/*    margin: 0 auto !important;*/
-/*    display: flex !important;*/
-/*    justify-content: center !important;*/
-/*    align-items: center !important;*/
-/*    width: 100%; !* Ensures the clickable area spans the width *!*/
-/*}*/
-
-/*!* 3. Remove any margin-right from the icon/avatar wrapper *!*/
-/*.sidebar.collapsed .avatar-wrapper {*/
-/*    margin-right: 0 !important;*/
-/*    padding: 0 !important;*/
-/*}*/
-
 /* Profile Section at Bottom */
 .profile-card {
     padding: 8px;
@@ -280,7 +317,7 @@ to 1.2 times (120%) the element's current font-size*/
     color: #0ea5e9 !important; /* Sky Blue */
 }
 
-/*Adding transitions to the base clases for an smoother movement when hovered*/
+/*Adding transitions to the base classes for an smoother movement when hovered*/
 
 .nav-link-custom,
 .profile-card,
