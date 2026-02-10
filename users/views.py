@@ -42,11 +42,40 @@ class LoginView(View):
             if user is not None:
                 # User is authenticated
                 login(request, user)
+                #
+                if user.password_must_change:
+                    return redirect('change_own_password')
+                #
                 return redirect('dashboard')
             else:
                 form.add_error(None, 'Correo o contraseña inválidos')
 
         return render(request, 'login.html', {'form': form})
+
+@login_required
+def changeOwnPassword(request):
+    user = request.user
+    form = PasswordChangeForm(user)
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            # After changing the password, set password_must_change to False
+            user.password_must_change = False
+            user.save(update_fields=['password_must_change'])
+            # Login the user out
+            logout(request)
+            # Letting the user know
+            messages.success(request, "Tu contraseña ha sido cambiada exitosamente.")
+            messages.info(request, "Inicia sesión con tu nueva contraseña.")
+            #Redirecting the user to login page
+            return redirect('login')
+    return render(request, 'change_own_password.html', {'form': form})
+
+@login_required
+@permission_required('users.can_manage_users', raise_exception=True)
+def changeUserPassword(request, user_id):
+    pass
 
 
 class UserManagementMixin(LoginRequiredMixin, PermissionRequiredMixin):

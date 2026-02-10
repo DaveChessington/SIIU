@@ -61,11 +61,17 @@ class UserRegWithRoleAndBuildingForm(UserRegistrationForm):
     class Meta(UserRegistrationForm.Meta):
         fields = UserRegistrationForm.Meta.fields + ['role', 'building']
         labels = {**UserRegistrationForm.Meta.labels, 'role': 'Rol', 'building': 'Plantel'}
+        
         widgets = {
             **UserRegistrationForm.Meta.widgets,
             'role': forms.Select(attrs={'class': 'form-control'}),
             'building': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #setting the building field as not required
+        self.fields['building'].required = False
 
 
 

@@ -58,6 +58,8 @@ class User(AbstractUser):
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.USER)
     is_active = models.BooleanField(default=True)
     deleted_at = models.DateTimeField(blank=True, null=True)
+    #
+    password_must_change = models.BooleanField(default=True)
 
     class Meta:
         permissions = [
