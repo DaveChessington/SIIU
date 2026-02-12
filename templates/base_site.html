@@ -97,6 +97,18 @@
 {% block script %}
     <script>
         const sidebar = document.getElementById('mainSidebar');
+        const logoFull = "{% static 'images/siiu_1.png' %}";
+        const logoSmall = "{% static 'images/siiu_2.png' %}";
+
+        // Retrieve the previous sidebar state from the browser's local storage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedState = localStorage.getItem('sidebar-collapsed');
+            // LocalStorage stores data as strings, so we check for the text 'true'
+            if (savedState === 'true') {
+                sidebar.classList.add('collapsed');
+                document.getElementById('logo-image').src = logoSmall;
+            }
+        });
 
         function toggleSidebar() {
             sidebar.classList.toggle('collapsed');
@@ -104,11 +116,12 @@
             const isCollapsed = sidebar.classList.contains('collapsed');
             
             if (isCollapsed) {
-                logo_image.src = '{% static 'images/siiu_2.png' %}';
+                logo_image.src = logoSmall;
                 logo_image.alt = "simple logo";
             }else{
-                logo_image.src = '{% static 'images/siiu_1.png' %}';
+                logo_image.src = logoFull;
             }
+            localStorage.setItem('sidebar-collapsed', isCollapsed);
         }
     </script>
 {% endblock %}
