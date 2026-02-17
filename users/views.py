@@ -106,15 +106,15 @@ class UserListView(UserManagementMixin, ListView):
         return context
 
 
-class UserRegWithRoleAndBuildingView(UserManagementMixin, FormView):
-    model = User
-    form_class = UserRegWithRoleAndBuildingForm
+class UserRegWithRoleAndBuildingView(UserManagementMixin, FormView):#display form and validate
+    model = User #data saved on Users table
+    form_class = UserRegWithRoleAndBuildingForm #contains the fields,layout adn validations
     template_name = 'new_user.html'
     success_url = reverse_lazy('user_list')
 
-    def form_valid(self, form):
+    def form_valid(self, form): #called when correct validation
         data = form.cleaned_data
-        User.objects.create_user(
+        User.objects.create_user( #create the user
             email=data['email'],
             password=data['password'],
             role=data['role'],
@@ -123,6 +123,22 @@ class UserRegWithRoleAndBuildingView(UserManagementMixin, FormView):
             building=data['building'],
         )
         return super().form_valid(form)
+    """"""
+    def get_context_data(self, **kwargs):#data sent to the HTML template.
+        context = super().get_context_data(**kwargs) #call parent's method before override 
+        form = context['form'] #retrieve context dict and mod it
+        
+        context['field_layout'] = []
+
+        for row in form.field_layout:
+            fields = [form[field_name] for field_name in row]
+            col_size = int(12 / len(fields))
+            context['field_layout'].append({
+                'fields': fields,
+                'col': col_size
+            })
+
+        return context
 
     # def get(self, request):
     #     form = UserRegistrationWithRoleForm()

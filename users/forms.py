@@ -66,6 +66,15 @@ class UserRegWithRoleAndBuildingForm(UserRegistrationForm):
             'role': forms.Select(attrs={'class': 'form-control'}),
             'building': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    #proposed layout for fields
+    field_layout = [
+            ('first_name', 'last_name'),
+            ('email',),
+            ('password', 'confirm_password'),
+            ('role','building')
+    ]
+        
 
 
 
