@@ -1,0 +1,224 @@
+:root {
+    --siu-blue: #1a365d;
+    --siu-gold: #d4af37;
+    --text-main: #2c3e50;
+    --text-light: #7f8c8d;
+    --bg-gradient-start: #eef2f7;
+    --bg-gradient-end: #ffffff;
+    --anim-speed-fast: 0.3s;
+    --anim-speed-medium: 0.6s;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.profile-container {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn var(--anim-speed-medium) ease-out;
+}
+
+.card-profile {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 24px;
+    padding: 45px 35px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(26, 54, 93, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: transform var(--anim-speed-fast) ease, box-shadow var(--anim-speed-fast) ease;
+}
+
+.card-profile:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px rgba(26, 54, 93, 0.12);
+}
+
+.card-profile::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 5px;
+    background-color: var(--siu-gold);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    animation: expandWidth 0.8s ease-out forwards;
+}
+
+.avatar-box {
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+    animation-delay: 0.2s;
+}
+
+.avatar-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid white;
+    box-shadow: 0 0 0 3px var(--siu-gold), 0 15px 30px rgba(0, 0, 0, 0.15);
+    transition: all var(--anim-speed-fast) ease;
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 42px;
+    height: 42px;
+    background-color: var(--siu-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+
+
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.avatar-edit-btn i {
+    font-size: 1.1rem;
+}
+
+
+.avatar-box:hover .avatar-edit-btn {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+
+.avatar-edit-btn:hover {
+    background-color: var(--siu-gold);
+    transform: scale(1.1) !important;
+}
+
+
+
+.animate-up {
+    opacity: 0;
+    animation: slideUpFade var(--anim-speed-medium) ease-out forwards;
+}
+
+.user-name {
+    color: var(--siu-blue);
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    animation-delay: 0.4s;
+}
+
+.user-email {
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 30px;
+    animation-delay: 0.5s;
+}
+
+
+.job-info {
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(26, 54, 93, 0.05);
+    animation-delay: 0.7s;
+    transition: all 0.3s ease;
+}
+
+.job-info:hover {
+    background-color: white;
+    border-color: var(--siu-gold);
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1);
+    transform: translateY(-2px);
+}
+
+.job-role {
+    display: block;
+    color: var(--siu-blue);
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+}
+
+.job-location {
+    display: block;
+    color: var(--siu-gold);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    70% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes expandWidth {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+
+    to {
+        width: 80px;
+        opacity: 1;
+    }
+}

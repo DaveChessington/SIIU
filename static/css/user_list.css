@@ -1,0 +1,155 @@
+/* Contenedor principal: Transparencia y desenfoque */
+.glass-toolbar {
+    background: rgba(218, 224, 225, 0.273) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(117, 134, 144, 0.298) !important;
+}
+
+/* Estilo para los botones de filtro (Pills) */
+.btn-user-status-filter {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    color: #1a5488;
+}
+
+.btn-user-status-filter.active {
+    background: rgba(16, 122, 122, 0.2) !important;
+    /* Azul traslúcido */
+    /*color: #367b99 !important;*/
+    border-color: rgba(5, 41, 41, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Buscador moderno */
+.search-pill-container {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: focus-within 0.3s ease;
+}
+
+.search-pill-container:focus-within {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(54, 123, 153, 0.1);
+}
+
+.search-pill-container .form-control {
+    background: transparent !important;
+    border: none !important;
+}
+
+.search-pill-container .input-group-text {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Botón Primario*/
+.btn.btn-primary {
+    background-color: rgba(54, 123, 153, 0.85);
+    border: 1px solid rgba(54, 123, 153, 0.2);
+}
+
+/* Efecto al pasar el mouse */
+.btn.btn-primary:hover {
+    background-color: rgba(54, 123, 153, 1);
+    /* Se vuelve sólido */
+    transform: translateY(-1px);
+    /* Pequeño salto hacia arriba */
+    box-shadow: 0 6px 12px rgba(54, 123, 153, 0.3);
+    border-color: #367b99;
+}
+
+
+
+
+
+/* Vertical divider inside the toolbar */
+.vr {
+    height: 24px;
+    align-self: center;
+}
+
+/*table styles*/
+
+
+.table thead th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    background-color: rgba(1, 9, 11, 0.471);
+}
+
+.table tbody tr {
+    background-color: transparent;
+    transition: all transform 0.2s ease-in-out;
+}
+
+.table tbody tr:hover {
+    transform: scale(0.99);
+    /* Un poco menos agresivo para evitar saltos de texto */
+    background-color: rgba(54, 123, 153, 0.03) !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.02);
+    z-index: 10;
+}
+
+.table tbody td {
+    padding: 1rem;
+    /* GLASS EFFECT: Blend with your card style */
+    background: rgba(255, 255, 255, 0.1);
+    /*backdrop-filter: blur(10px);*/
+    /* Blurs elements behind row */
+}
+
+/* Contenedor de la paginación para centrarlo (opcional) */
+.pagination {
+    gap: 5px;
+    /* Espacio entre botones */
+    margin-top: 1.5rem;
+}
+
+/* Estilo base del botón de navegación */
+.btn-user-navigation-controller {
+    background: rgba(255, 255, 255, 0.2);
+    /* Fondo sutil */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #4a5568;
+    padding: 0.4rem 0.9rem;
+    border-radius: 12px;
+    /* Bordes redondeados modernos */
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* Estado Hover */
+.btn-user-navigation-controller:hover:not(:disabled) {
+    background: rgba(54, 123, 153, 0.15);
+    border-color: rgba(54, 123, 153, 0.4);
+    color: #367b99;
+    transform: translateY(-1px);
+}
+
+/* Estado Activo (Número de página actual) */
+.btn-user-navigation-controller.active {
+    background: #367b99 !important;
+    /* Azul sólido para destacar */
+    color: #ffffff !important;
+    border-color: #367b99;
+    box-shadow: 0 4px 12px rgba(54, 123, 153, 0.3);
+}
+
+/* Estado Deshabilitado */
+.btn-user-navigation-controller:disabled,
+.btn-user-navigation-controller.disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: #a0aec0;
+    border-color: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
