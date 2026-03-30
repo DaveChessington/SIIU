@@ -26,7 +26,7 @@ def create_groups(apps, schema_editor):
         ('view_request_detail', 'inventory', ('admin', 'user')),
         ('change_request_detail', 'inventory', ('admin', 'user')),
         ('delete_request_detail', 'inventory', ('admin', 'user')),
-        ('add_product', 'inventory', ('admin', 'user')),
+        ('add_product', 'inventory', ('admin', 'user')), 
         ('view_product', 'inventory', ('admin', 'user')),
         ('change_product', 'inventory', ('admin', 'user')),
         ('delete_product', 'inventory', ('admin', 'user')),

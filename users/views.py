@@ -11,7 +11,7 @@ from django.views import View
 from django.views.generic import ListView, CreateView, FormView
 
 from inventory.models import Building
-from .forms import UserLoginForm, UserRegWithRoleAndBuildingForm
+from .forms import UserLoginForm, UserRegWithRoleAndBuildingForm, CustomPasswordChangeForm, UpdateUserForm
 from .models import User, Role
 import json
 
@@ -21,43 +21,50 @@ from django.template.defaultfilters import date as date_filter
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 
-
+@method_decorator(ratelimit(key='post:email', rate='5/m', block=False), name='post')
+@method_decorator(ratelimit(key='post:ip', rate='5/m', block=False), name='post')
 class LoginView(View):
-    def get(self, request):
-        form = UserLoginForm()
-        return render(request, 'login.html', {'form': form})
-
+    def get(self, request, form=None, is_limited=False):
+        if form is None:
+            form = UserLoginForm()
+        return render(request, 'pages/auth/login.html', {'form': form, 'is_limited':is_limited})
+    
     def post(self, request):
+        # Check if reate limit was exceeded
+        if getattr(request, 'limited', False):
+            messages.error(request, "Has superado el límite de intentos permitidos. Inténtalo de nuevo en un minuto.")
+            return self.get(request, is_limited=True)
+        
         form = UserLoginForm(request.POST)
         if form.is_valid():
             # get the cleaned data
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
 
-            # Authenticate against the database
+            # Looks for a user against the database according to the provided credentials
             user = authenticate(request, email=email, password=password)
 
             if user is not None:
-                # User is authenticated
+                # If the user was found do:
                 login(request, user)
-                #
                 if user.password_must_change:
                     return redirect('change_own_password')
-                #
                 return redirect('dashboard')
             else:
+                # If the user was not found:
                 form.add_error(None, 'Correo o contraseña inválidos')
 
-        return render(request, 'login.html', {'form': form})
-
+        return self.get(request, form=form)
+    
 @login_required
 def changeOwnPassword(request):
     user = request.user
-    form = PasswordChangeForm(user)
+    form = CustomPasswordChangeForm(user)
     if request.method == 'POST':
-        form = PasswordChangeForm(user, request.POST)
+        form = CustomPasswordChangeForm(user, request.POST)
         if form.is_valid():
             form.save()
             # After changing the password, set password_must_change to False
@@ -65,28 +72,76 @@ def changeOwnPassword(request):
             user.save(update_fields=['password_must_change'])
             # Login the user out
             logout(request)
-            # Letting the user know
+            # Letting the user know what had happened
             messages.success(request, "Tu contraseña ha sido cambiada exitosamente.")
             messages.info(request, "Inicia sesión con tu nueva contraseña.")
             #Redirecting the user to login page
             return redirect('login')
-    return render(request, 'change_own_password.html', {'form': form})
+    return render(request, 'pages/auth/change_own_password.html', {'form': form})
 
 @login_required
 @permission_required('users.can_manage_users', raise_exception=True)
+@require_POST
 def changeUserPassword(request, user_id):
-    pass
+    user = get_object_or_404(User, pk=user_id)
 
+    if user.is_admin:
+        messages.error(request, "No puedes cambiar la contraseña de un administrador.")
+    else:
+        if( request.method == 'POST'):
+            new_password = request.POST.get('new-password')
+
+            if new_password :
+                user.set_password(new_password)
+                user.password_must_change = True
+                user.save(update_fields=['password', 'password_must_change'])
+                messages.success(request, f"La contraseña ha sido restablecida con exito para el usuario {user.get_partial_name}")
+            else:
+                messages.warning(request, "No se restableció ninguna contraseña. Inténtalo de nuevo.")
+
+    return redirect('user_list')
+
+@login_required
+@permission_required('users.can_manage_users', raise_exception=True)
+def updateUserView(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    
+    if user.is_admin:
+        messages.warning(request, "No puedes modificar a un usuario administrador.")
+        return redirect('user_list')
+
+    if request.method == 'POST':
+        form = UpdateUserForm(request.POST, instance=user)
+        if form.is_valid():
+            if form.has_changed():
+                # Since the form inherits from ModelForm, 
+                # there's no need to map each form field to the user's model ones. 
+                form.save() 
+                messages.success(request, f"El usuario {user.get_partial_name} ha sido actualizado con exito.")
+            else:
+                messages.info(request, "No se ha realizado ningún cambio.")
+            
+            return redirect('user_list')
+    else:
+        form = UpdateUserForm(instance=user)
+
+    return render(request, 'pages/users/update_user.html', {
+        'form': form,
+        'target_user': user
+    })
+
+#
+# TODO Update user profile view
+#
 
 class UserManagementMixin(LoginRequiredMixin, PermissionRequiredMixin):
     permission_required = "users.can_manage_users"
     raise_exception = True
 
-
 class UserListView(UserManagementMixin, ListView):
     model = User
     queryset = User.objects.select_related('building').all()
-    template_name = "user_list.html"
+    template_name = "pages/users/user_list.html"
     context_object_name = "users"
     ordering = ['-date_joined']
 
@@ -101,10 +156,13 @@ class UserListView(UserManagementMixin, ListView):
         user_list = []
 
         for user in users_qs:
-            profile_picture = "default.png"
 
-            if hasattr(user, 'profile') and user.profile.profile_picture:
-                profile_picture = user.profile.profile_picture
+            profile_picture = ( 
+                user.profile.profile_picture 
+                if hasattr(user, 'profile') and user.profile.profile_picture
+                else "default.png"
+            )
+                               
 
             user_data = {
                 'id': user.id,
@@ -119,26 +177,15 @@ class UserListView(UserManagementMixin, ListView):
             }
             user_list.append(user_data)
 
-        # user_list = [{
-        #     'id': user.id,
-        #     'email': user.email,
-        #     'partial_name': user.get_partial_name,
-        #     'profile_pic_url': static(f"avatars/{user.profile.profile_picture}.png") if user.profile else static(f"avatars/default.png"),
-        #     'rol': 'Admin' if user.role == Role.ADMIN else 'Usuario',
-        #     'is_active': user.is_active,
-        #     'date_joined': date_filter(user.date_joined, "j F, Y P"),
-        #     'last_login': timesince(user.last_login).split(',')[0] if user.last_login else "Nunca",
-        #     'building': user.building.name if user.building else 'No establecido'
-        # } for user in users_qs]
-
-        context['users_json'] = json.dumps(user_list, cls=DjangoJSONEncoder)
+        context['users_json'] = user_list
+        # context['users_json'] = json.dumps(user_list, cls=DjangoJSONEncoder)
         return context
 
 
 class UserRegWithRoleAndBuildingView(UserManagementMixin, FormView):
     model = User
     form_class = UserRegWithRoleAndBuildingForm
-    template_name = 'new_user.html'
+    template_name = 'pages/users/new_user.html'
     success_url = reverse_lazy('user_list')
 
     def form_valid(self, form):
@@ -153,27 +200,6 @@ class UserRegWithRoleAndBuildingView(UserManagementMixin, FormView):
         )
         return super().form_valid(form)
 
-    # def get(self, request):
-    #     form = UserRegistrationWithRoleForm()
-    #     return render(request, 'user_registration.html', {'form': form})
-    #
-    # def post(self, request):
-    #     form = UserRegistrationWithRoleForm(request.POST)
-    #     if form.is_valid():
-    #         # get cleaned data
-    #         name = form.cleaned_data['first_name']
-    #         last_name = form.cleaned_data['last_name']
-    #         email = form.cleaned_data['email']
-    #         password = form.cleaned_data['password']
-    #         rol = form.cleaned_data['role']
-    #
-    #         User.objects.create_user(name, last_name, email, password, rol)
-    #
-    #         return redirect('')
-    #
-    #     return render(request, 'new_user.html', {'form': form})
-
-
 @login_required
 @permission_required('users.can_manage_users', raise_exception=True)
 @require_POST
@@ -181,7 +207,7 @@ def changeUserStatus(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
     if request.user == user:
-        messages.error(request, "No puedes cambiar el estado de tu propio usuario.")
+        messages.warning(request, "No puedes cambiar el estado de tu propio usuario.")
         return redirect('user_list')
     
     user.is_active = not user.is_active
@@ -192,25 +218,17 @@ def changeUserStatus(request, user_id):
     return redirect('user_list')
 
 @login_required
-@permission_required('users.can_manage_users', raise_exception=True)
-def changeUserPassword(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    form = PasswordChangeForm(user)
-    if request.method == 'POST':
-        pass
-    
-    return render(request, 'change_user_password.html', {'form': form, 'user': user})
-
-
-@login_required
+@require_POST
 def logoutView(request):
     logout(request)
     return redirect('login')
 
-
+#
+#TODO
+#
 @login_required
 def profileView(request):
     if request.method == 'POST':
         pass
 
-    return render(request, 'user_profile.html')
+    return render(request, 'pages/users/user_profile.html')

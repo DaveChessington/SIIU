@@ -5,6 +5,8 @@ def format_plural_singular(word, following_word):
         return word
 
 def format_masculine_feminine(word):
+    lower_word = word.lower()
+
     exceptions = {
         'sistema': 'el',
         'mapa': 'el',
@@ -13,20 +15,22 @@ def format_masculine_feminine(word):
         'edición': 'la',
     }
 
-    if word.lower() in exceptions:
-        return exceptions[word.lower()]
+    if lower_word in exceptions:
+        return exceptions[lower_word]
 
     article = ''
-    if word.lower().endswith('a'):
+    if lower_word.endswith('a'):
         article = 'la'
-    elif word.lower().endswith('as'):
+    elif lower_word.endswith('as'):
         article = 'las'
-    elif word.lower().endswith('os'):
+    elif lower_word.endswith('os'):
         article = 'los'
     else:
         article = 'el'
 
     return article
+
+
 
 # TODO function that removes any invalid character from a string for
 # Alpinejs sake such as: ' '' & \n

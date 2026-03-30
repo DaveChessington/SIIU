@@ -1,0 +1,76 @@
+/* Toolbar Styling */
+.nav-pills .nav-link {
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #a5d4e8;
+    color: #367b99;
+}
+
+/* Make the Search Pill feel modern */
+.search-pill-container .form-control {
+    border-color: #dee2e6;
+    font-size: 0.85rem;
+}
+
+.search-pill-container .form-control:focus {
+    background-color: #fff !important;
+    border-color: #367b99;
+    box-shadow: none;
+}
+
+/* Vertical divider inside the toolbar */
+.vr {
+    height: 24px;
+    align-self: center;
+}
+
+/*User status filter buttons and pagination button*/
+/* 1. Base Reset & Typography */
+.btn-user-status-filter,
+.btn-user-navigation-controller {
+    background: transparent;
+    border: none;
+    padding: 6px 20px;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    /* transition is crucial for the "shrinking" animation */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none !important;
+    display: inline-block;
+}
+
+.btn-user-status-filter:hover:not(.active),
+.btn-user-navigation-controller:hover:not(.disabled):not(.active):not(:disabled) {
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    color: #0f172a;
+}
+
+/* The "Smaller" Active State */
+.btn-user-status-filter.active,
+.btn-user-navigation-controller.active {
+    background: #0ea5e9;
+    color: #ffffff;
+    border-radius: 8px;
+
+    /* This makes it look smaller */
+    transform: scale(0.92);
+
+    /* Adjusting padding slightly helps the "compact" feel */
+    padding: 5px 16px;
+
+    /* Optional: a slightly deeper shadow makes it look "pressed in" */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/*Pagination centering*/
+.pagination {
+    align-items: center;
+    justify-content: center;
+}

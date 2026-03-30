@@ -10,14 +10,14 @@ from users.models import User
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    return render(request, 'pages/dashboard/dashboard.html')
 
 
 @login_required
 @permission_required('inventory.global_view_buildings', raise_exception=True)
 def building_list_view(request):
     buildings = Building.objects.all().order_by('name')
-    return render(request, "buildings.html", {'buildings': buildings})
+    return render(request, "pages/buildings/buildings.html", {'buildings': buildings})
 
 
 @login_required
@@ -43,9 +43,7 @@ def manage_building_users(request):
         building_form = BuildingForm()
         user_formset = UserFormSet()
 
-    return render(request,
-                  'new_building.html',
-                  {'form': building_form, 'formset': user_formset})
+    return render(request, 'pages/buildings/new_building.html', {'form': building_form, 'formset': user_formset})
 
 # class PlantelCreatewithUserView(LoginRequiredMixin, CreateView):
 #     model = Plantel

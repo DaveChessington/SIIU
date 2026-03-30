@@ -1,0 +1,12 @@
+[✅] configure nginx.conf file 
+[✅] create docker file for the project
+[ ] Fix the 403 view for ratelimit exceeded
+
+-------------------------------------------
+[ ] Configure url routing patterns 
+[ ] Configure nginx server
+[ ] Add profile picture table
+[ ] Add picture field to the buildings table
+[ ] Estructure departments forms and views
+[ ] Estructure products forms and views
+[ ] Estructure requests forms and views

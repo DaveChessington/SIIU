@@ -1,0 +1,254 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/pages/dashboard/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{% if user.is_admin%}
+<h1>DashBoard General</h1>
+<div class="d-flex flex-lg-row justify-content-center align-items-center">
+    <div class="p-2 me-3 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Entradas de ($mes) <i class="bi bi-box-arrow-in-left big-icon"></i></h5>
+            <p class="card-text"><strong>$567,402</strong></p>
+        </div>
+    </div>
+    <div class="p-2 me-3 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Salidas de ($mes) <i class="bi bi-box-arrow-in-right big-icon"></i></h5>
+            <p class="card-text"><strong>2,208</strong></p>
+        </div>
+    </div>
+    <div class="p-2 me-3 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Existencias de ($mes) <i class="bi bi-box2-fill big-icon"></i></h5>
+            <p class="card-text"><strong>2,208</strong></p>
+        </div>
+    </div>
+    <div class="p-2 me-3 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Entradas de ($mes)</h5>
+            <p class="card-text"><strong>$567,402</strong></p>
+        </div>
+    </div>
+</div>
+<div class="d-flex flex-row justify-content-center mt-4">
+    <div class="d-flex flex-column p-2 me-3 flex-fill">
+        <div class="p-2 mb-3 card flex-fill">
+            <div class="card-body">
+                <h5 class="card-title">Top Pedidos <i class="bi bi-award-fill big-icon"></i></h5>
+                <p class="card-text"><strong>$567,402</strong></p>
+            </div>
+        </div>
+        <div class="p-2 mb-3 card flex-fill">
+            <div class="card-body">
+                <h5 class="card-title">Planteles con más pedidos <i class="bi bi-buildings-fill big-icon"></i></h5>
+                <p class="card-text"><strong>$567,402</strong></p>
+            </div>
+        </div>
+        <div class="p-2 card flex-fill">
+            <div class="card-body">
+                <h5 class="card-title">Productos más pedidos <i class="bi bi-clipboard-data big-icon"></i></h5>
+                <p class="card-text"><strong>$567,402</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-column p-2 me-3 flex-fill">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex flex-row p-2 me-3 justify-content-between align-items-center">
+                    <h5 class="card-title mb-4">Pedidos</h5>
+                    <a class="btn btn-primary">Ver más <i class="bi bi-arrow-right big-icon"></i></a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Plantel</th>
+                                <th scope="col">Usuario</th>
+                                <th scope="col">Fecha</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Torres Landa</td>
+                                <td>Leo</td>
+                                <td>8/1/2026</td>
+                                <td><span class="badge rounded-pill bg-success">Completado</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-link text-dark p-0"><i
+                                            class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Torres Landa</td>
+                                <td>Leo</td>
+                                <td>8/1/2026</td>
+                                <td><span class="badge rounded-pill bg-warning text-dark">Pendiente</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-link text-dark p-0"><i
+                                            class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Juarez</td>
+                                <td>Leo</td>
+                                <td>8/1/2026</td>
+                                <td><span class="badge rounded-pill bg-warning text-dark">Pendiente</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-link text-dark p-0"><i
+                                            class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Juarez</td>
+                                <td>Leo</td>
+                                <td>8/1/2026</td>
+                                <td><span class="badge rounded-pill bg-success">Completado</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-link text-dark p-0"><i
+                                            class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<img src="">
+<h1>User Dashboard</h1>
+<div class="d-flex flex-lg-row justify-content-center align-items-center gap-3">
+    <div class="p-2 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Mis Pedidos Pendientes</h5>
+            <p class="card-text"><strong>8</strong></p>
+        </div>
+    </div>
+    <div class="p-2 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Mis Pedidos Completados</h5>
+            <p class="card-text"><strong>8</strong></p>
+        </div>
+    </div>
+    <div class="p-2 card flex-fill">
+        <div class="card-body">
+            <h5 class="card-title">Ultima Sesión</h5>
+            <p class="card-text"><strong>13/01/2025</strong></p>
+        </div>
+    </div>
+</div>
+<div class="d-flex flex-row justify-content-center gap-3 mt-4">
+    <div class="card flex-fill">
+        <div class="card-body">
+            <div class="d-flex flex-row p-2 me-3 justify-content-between align-items-center">
+                <h5 class="card-title mb-4">Pedidos Recientes</h5>
+                <a class="btn btn-primary">Ver más <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">id Producto</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0001</td>
+                            <td>C0MP1</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                            <td><span class="badge rounded-pill bg-success">Completado</span></td>
+                        </tr>
+                        <tr>
+                            <td>0001</td>
+                            <td>CpR23</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                            <td><span class="badge rounded-pill bg-success">Completado</span></td>
+                        </tr>
+
+                        <tr>
+                            <td>0001</td>
+                            <td>T0eP1</td>
+                            <td>5</td>
+                            <td>13/01/2026</td>
+                            <td><span class="badge rounded-pill bg-warning text-dark">Pendiente</span></td>
+                        </tr>
+                        <tr>
+                            <td>0001</td>
+                            <td>C0fw1</td>
+                            <td>2</td>
+                            <td>13/01/2026</td>
+                            <td><span class="badge rounded-pill bg-warning text-dark">Pendiente</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card flex-fill">
+        <div class="card-body">
+            <div class="d-flex flex-row p-2 me-3 justify-content-between align-items-center">
+                <h5 class="card-title mb-4">Pedidos Completados</h5>
+                <a class="btn btn-primary">Ver más <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">id Producto</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Fecha Completado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0001</td>
+                            <td>CpR23</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                        </tr>
+                        <tr>
+                            <td>0001</td>
+                            <td>C0MP1</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                        </tr>
+
+                        <tr>
+                            <td>0001</td>
+                            <td>CpR23</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                        </tr>
+                        <tr>
+                            <td>0001</td>
+                            <td>C0MP1</td>
+                            <td>1</td>
+                            <td>13/01/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

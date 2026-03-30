@@ -1,124 +1,14 @@
-{% extends 'base_site.html' %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block style %}
-<style>
-    /* Toolbar Styling */
-    .nav-pills .nav-link {
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border-radius: 8px;
-    }
-
-    .nav-pills .nav-link.active {
-        background-color: #a5d4e8;
-        color: #367b99;
-    }
-
-    /* Make the Search Pill feel modern */
-    .search-pill-container .form-control {
-        border-color: #dee2e6;
-        font-size: 0.85rem;
-    }
-
-    .search-pill-container .form-control:focus {
-        background-color: #fff !important;
-        border-color: #367b99;
-        box-shadow: none;
-    }
-
-    /* Vertical divider inside the toolbar */
-    .vr {
-        height: 24px;
-        align-self: center;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/pages/users/user_list.css' %}">
 {% endblock %}
 
-{% block main_content %}
-{% load static %}
+{% block content %}
 {% if perms.users.can_manage_users %}
-<div class="users-table-container" x-data="
-             {
-                search: '',
-                filters: {
-                status: 'None',
-                },
-                users: {{ users_json }},
-                currentPage: 1,
-                maxNumRowsPerPage: 4,
-                //
-                totalPages: 0,
 
-                init(){
-                // Prevents the user from getting stuck on an empty page after filtering
-                    this.$watch('search', () => this.currentPage = 1);
-                    this.$watch('filters.status', () => this.currentPage = 1);
-                    //
-                    this.totalPages = Math.ceil(this.users.length / this.maxNumRowsPerPage);
-                },
-                get filteredUsers(){
-                // Filters the users conforming to the filters applied, as well as any search
-                    let filteredResults = this.users.filter(u =>
-                        u.email.toLowerCase().includes(this.search.toLowerCase()) ||
-                        u.name.toLowerCase().includes(this.search.toLowerCase()));
-
-                    if (this.filters.status !== 'None') {
-                        return filteredResults.filter(u => {
-                            return this.filters.status === 'active' ? u.is_active : !u.is_active;
-                        });
-                    }
-
-                    return filteredResults;
-                },
-                get calcNumPages(){
-                // Calculates the total number of buttons for pagination according to the filtered users
-
-                    // total pages
-                    //const totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
-                    this.totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
-
-                    // buttons to be shown
-                    const maxButtons = 5;
-
-                    let start = this.currentPage - Math.floor(maxButtons / 2); // current page, plus the smallest integer due to the division of maxButtons over two
-                    let end = this.currentPage + Math.floor(maxButtons / 2); // current page, minus the smallest integer due to the division of maxButtons over two
-
-                    // Adjust if we are near the beginning
-                    if (start <= 1) {
-                        //In case the starting point is less than or equal to 1:
-                        //  1. start will be equal to one
-                        //  2. end will be equal to smallest value between maxButtons and totalRows over maxNumRowsPerPage
-
-                        start = 1;
-                        end = Math.min(maxButtons, this.totalPages);
-                    }
-
-                    // Adjust if we are near the end
-                    if (end >= this.totalPages) {
-                        //In case the ending point is greater than totalRows:
-                        //  1. end will be equal to totalRows
-                        //  2. start will be equal to the greatest value between one and totalRows - maxButtons + 1
-
-                        end = this.totalPages;
-                        start = Math.max(1, this.totalPages - maxButtons + 1);
-                    }
-
-                    // Create the array of page numbers
-                    const pages = [];
-                    for (let i = start; i <= end; i++) {
-                        pages.push(i);
-                    }
-                    return pages;
-
-                },
-                get usersToDisplay(){
-                {# Returns the exact users to be displayed #}
-                    let minLimit = (this.currentPage * this.maxNumRowsPerPage) - this.maxNumRowsPerPage;
-                    let maxLimit = this.currentPage * this.maxNumRowsPerPage;
-
-                    return this.filteredUsers.slice(minLimit, maxLimit);
-
-                },
-             }">
+<div class="users-table-container" x-data="paginationHandler()">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="fw-bold text-dark mb-0">Usuarios</h2>
@@ -237,14 +127,55 @@
                         <td>
                             <div class="d-flex gap-2">
 
-                                <a href="#" class="btn btn-sm btn-outline-primary" title="Editar usuario">
+                                <a :href="`/user/update_user/${user.id}/`" class="btn btn-sm btn-outline-primary"
+                                    title="Editar usuario">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
 
-                                <!-- <a href="#" class="btn btn-sm btn-outline-warning" title="Restablecer contraseña">
-                                    <i class="bi bi-key"></i>
-                                </a> -->
+                                <div x-data="{ showPasswordReplacementModal: false }">
+                                    <button @click="showPasswordReplacementModal = true"
+                                        class="btn btn-sm btn-outline-warning" title="Cambiar contraseña">
+                                        <i class="bi bi-key"></i>
+                                    </button>
 
+                                    <template x-if="showPasswordReplacementModal">
+                                        <div class="modal fade show d-block" tabindex="-1"
+                                            style="background: rgba(0,0,0,0.5);">
+                                            <div class="modal-dialog modal-medium modal-dialog-centered">
+                                                <div class="modal-content shadow-lg">
+                                                    <div class="modal-body  py-4">
+                                                        <h6>Cambiar contraseña</h6>
+                                                        <span class="small text-muted"
+                                                            x-text="`Vas a cambiar la contraseña para ${user.name}` ">
+                                                        </span>
+
+                                                        <form method="post"
+                                                            :action="`/user/change_user_password/${user.id}/`">
+                                                            {% csrf_token %}
+                                                            <div>
+                                                                <label for="new-password" class="small">Nueva
+                                                                    contraseña: </label>
+                                                                <input type="password" id="new-password"
+                                                                    name="new-password" class="form-control" required
+                                                                    minlength="8">
+                                                            </div>
+
+                                                            <div class="d-flex justify-content-center gap-2 mt-3">
+                                                                <button @click="showPasswordReplacementModal = false"
+                                                                    class="btn btn-sm btn-light">
+                                                                    Cancelar
+                                                                </button>
+                                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                                    Confirmar
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
 
                                 <div x-data="{ open: false }">
                                     <button @click="open = true"
@@ -318,4 +249,92 @@
     </nav>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block script %}
+{{ users_json|json_script:"users-data" }}
+<script>
+    function paginationHandler() {
+        return {
+            search: '',
+            filters: { status: 'None', },
+            users: JSON.parse(document.getElementById('users-data').textContent),
+            currentPage: 1,
+            maxNumRowsPerPage: 4,
+            //
+            totalPages: 0,
+
+            init() {
+                console.log(typeof this.users);
+                console.log(Array.isArray(this.users));
+                console.log(this.users);
+                // Prevents the user from getting stuck on an empty page after filtering
+                this.$watch('search', () => this.currentPage = 1);
+                this.$watch('filters.status', () => this.currentPage = 1);
+                //
+                this.totalPages = Math.ceil(this.users.length / this.maxNumRowsPerPage);
+            },
+            get filteredUsers() {
+                // Filters the users conforming to the filters applied, as well as any search
+                let filteredResults = this.users.filter(u =>
+                    u.email.toLowerCase().includes(this.search.toLowerCase()) ||
+                    u.name.toLowerCase().includes(this.search.toLowerCase()));
+
+                if (this.filters.status !== 'None') {
+                    return filteredResults.filter(u => {
+                        return this.filters.status === 'active' ? u.is_active : !u.is_active;
+                    });
+                }
+                return filteredResults;
+            },
+            get calcNumPages() {
+                // Calculates the total number of buttons for pagination according to the filtered users
+
+                // total pages
+                //const totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
+                this.totalPages = Math.ceil(this.filteredUsers.length / this.maxNumRowsPerPage);
+
+                // buttons to be shown
+                const maxButtons = 5;
+
+                let start = this.currentPage - Math.floor(maxButtons / 2); // current page, plus the smallest integer due to the division of maxButtons over two
+                let end = this.currentPage + Math.floor(maxButtons / 2); // current page, minus the smallest integer due to the division of maxButtons over two
+
+                // Adjust if we are near the beginning
+                if (start <= 1) {
+                    //In case the starting point is less than or equal to 1:
+                    //  1. start will be equal to one
+                    //  2. end will be equal to smallest value between maxButtons and totalRows over maxNumRowsPerPage
+
+                    start = 1;
+                    end = Math.min(maxButtons, this.totalPages);
+                }
+
+                // Adjust if we are near the end
+                if (end >= this.totalPages) {
+                    //In case the ending point is greater than totalRows:
+                    //  1. end will be equal to totalRows
+                    //  2. start will be equal to the greatest value between one and totalRows - maxButtons + 1
+
+                    end = this.totalPages;
+                    start = Math.max(1, this.totalPages - maxButtons + 1);
+                }
+
+                // Create the array of page numbers
+                const pages = [];
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+                return pages;
+            },
+            get usersToDisplay() {
+                //Returns the exact users to be displayed 
+                let minLimit = (this.currentPage * this.maxNumRowsPerPage) - this.maxNumRowsPerPage;
+                let maxLimit = this.currentPage * this.maxNumRowsPerPage;
+
+                return this.filteredUsers.slice(minLimit, maxLimit);
+            },
+        }
+    }
+</script>
 {% endblock %}

@@ -10,22 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from django.contrib.messages import constants as messages
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_RROT = '/home/leo/Documents/1421-14/SIIU/nginx/images/'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-sag(a+doc_3%ek#q4qg#@jleu_w%rfs$@yj0o3pr2o@$-c_5=4'
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(',')
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
 
 # Application definition
 
@@ -84,8 +92,8 @@ DATABASES = {
         'NAME': 'inventario',
         'USER': 'user',
         'PASSWORD': 'pass',
-        'PORT': 5433,
-        'HOST': 'localhost',
+        'PORT': 5432,
+        'HOST': 'db',
     }
 }
 
@@ -143,3 +151,14 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Profile picture settings
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# ROUTING
+
+# For unauthenticated users
+LOGIN_URL = 'login'
+# For authenticated users
+LOGIN_REDIRECT_URL = 'dashboard'
+# After logout
+LOGOUT_REDIRECT_URL = 'login'
+

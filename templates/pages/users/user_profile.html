@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/pages/users/user_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <section class="profile-container">
+        
+        <div class="card-profile">
+            
+            <div class="avatar-box">
+                <img 
+                    {% with profile_pic=user.profile.profile_picture|default_if_none:'default'|default:'default' %}
+                        src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
+                    {% endwith %}
+                    alt="Foto de perfil" 
+                    class="avatar-img"
+                />
+                <a href="#" class="avatar-edit-btn" title="Cambiar foto de perfil">
+                    <i class="bi bi-camera-fill"></i>
+                </a>
+            </div>
+
+            <h1 class="user-name animate-up">
+                {{ user.get_full_name }}
+            </h1>
+
+            <p class="user-email animate-up">{{ user.email }}</p>
+
+            <div class="job-info animate-up">
+                <span class="job-role">Encargado de Centro de Cómputo</span>
+                <span class="job-location">Plantel {{ user.building.name }}</span>
+            </div>
+
+        </div>
+
+    </section>
+
+{% endblock %}

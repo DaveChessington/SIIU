@@ -1,0 +1,57 @@
+{% load static %}
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SIIU - Iniciar sesión</title>
+    <link rel="stylesheet" href="{% static 'css/pages/auth/login.css' %}">
+</head>
+
+<body>
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="brand-mark">
+                <h1>SIIU</h1>
+                <p>Sistema Integral de<br>Inventarios Universitario</p>
+            </div>
+            <div class="divider"></div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div>
+                    {% if messages or form.non_field_errors %}
+
+                    {% for message in messages %}
+                    <div class="alert-box alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert-box alert-danger">{{ form.non_field_errors|striptags }}</div>
+                    {% endif %}
+
+                    {% endif %}
+                </div>
+
+                {% if not is_limited %}
+                    <!-- Individual fields -->
+                    {% for field in form %}
+                    <div class="field">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="field-error">
+                            {{ field.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn-submit">Iniciar sesión</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

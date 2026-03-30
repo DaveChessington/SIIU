@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if perms.users.can_manage_users %}
+<form method="post" novalidate>
+    {% csrf_token %}
+    <h3>Nuevo usuario</h3>
+    <hr>
+    {% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">
+            {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="alert alert-danger mt-1 p-1" role="alert">
+            {{ field.errors|striptags }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Añadir usuario</button>
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary">Cancelar</button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

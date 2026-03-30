@@ -1,16 +1,55 @@
 services:
+  web:
+    entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
+    build: 
+      context: .
+      dockerfile: dockerfile
+    restart: always
+    expose:
+      - '8000'
+    depends_on:
+      - db
+      - minio
+    env_file: .env
+    volumes:
+      - .:/app
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+  
+  minio:
+    image: minio/minio
+    restart: always
+    command: server /data --console-address ':9001'
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    env_file: .env
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   db:
-    container_name: postgres #nombre del contenedor
-    image: postgres:latest #nombre de la imagen
-    restart: always #Siempre reiniciarse si se llega a detener
-    environment: #variables de entorno
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_USER=user
-      - POSTGRES_DB=inventario
+    container_name: postgres 
+    image: postgres:17
+    restart: always
+    env_file: .env
     ports: #puerto del host: 5433, puerto de la bd: 5432
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql
-
+    
 volumes:
+  minio_data:
   pgdata:

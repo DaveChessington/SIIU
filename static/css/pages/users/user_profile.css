@@ -1,9 +1,4 @@
-{% extends 'base_site.html' %}
-{% load static %}
-
-{% block main_content %}
-    <style>
-        :root {
+:root {
             --siu-blue: #1a365d;
             --siu-gold: #d4af37;
             --text-main: #2c3e50;
@@ -182,39 +177,3 @@
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.5); } 70% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
         @keyframes expandWidth { from { width: 0; opacity: 0;} to { width: 80px; opacity: 1;} }
-
-    </style>
-
-    <section class="profile-container">
-        
-        <div class="card-profile">
-            
-            <div class="avatar-box">
-                <img 
-                    {% with profile_pic=user.profile.profile_picture|default_if_none:'default'|default:'default' %}
-                        src="{% static 'avatars/'|add:profile_pic|add:'.png' %}"
-                    {% endwith %}
-                    alt="Foto de perfil" 
-                    class="avatar-img"
-                />
-                <a href="#" class="avatar-edit-btn" title="Cambiar foto de perfil">
-                    <i class="bi bi-camera-fill"></i>
-                </a>
-            </div>
-
-            <h1 class="user-name animate-up">
-                {{ user.get_full_name }}
-            </h1>
-
-            <p class="user-email animate-up">{{ user.email }}</p>
-
-            <div class="job-info animate-up">
-                <span class="job-role">Encargado de Centro de Cómputo</span>
-                <span class="job-location">Plantel {{ user.building.name }}</span>
-            </div>
-
-        </div>
-
-    </section>
-
-{% endblock %}

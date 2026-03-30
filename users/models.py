@@ -1,7 +1,9 @@
+import os
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
-
+from django.conf import settings
+from utilities.image_handler import ImageHandler
 
 # Create your models here.
 class Role(models.TextChoices):
@@ -17,9 +19,9 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email, password, role=Role.USER, **extra_fields):
         if not email:
-            raise ValueError('An email must be set')
+            raise ValueError('Debe establecerse un correo.')
         if not password:
-            raise ValueError('A password must be set')
+            raise ValueError('Debe establecerse una contraseña.')
 
         required_fields = ['first_name', 'last_name']
 
@@ -84,9 +86,11 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
+    @property
     def is_admin(self):
         return self.role == Role.ADMIN
 
+    @property
     def is_regular_user(self):
         return self.role == Role.USER
 
@@ -117,25 +121,20 @@ class User(AbstractUser):
 
 
 class Profile_Picture(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    # profile_picture =   models.ImageField(
-    #     upload_to = 'profile_pictures/',
-    #     default='profile_pictures/default.jpg',
-    # )
-    profile_picture = models.CharField(max_length=20,
-                                       choices=[
-                                           ('1', 'Avatar 1'),
-                                           ('2', 'Avatar 2'),
-                                           ('3', 'Avatar 3'),
-                                           ('4', 'Avatar 4'),
-                                           ('5', 'Avatar 5'),
-                                           ('6', 'Avatar 6'),
-                                           ('7', 'Avatar 7'),
-                                           ('8', 'Avatar 8'),
-                                           ('9', 'Avatar 9'),
-                                           ('10', 'Avatar 10'),
-                                           ('default', 'Default'),
-                                       ],
-                                       default='default'
-                                       )
-    updated_at = models.DateTimeField(auto_now=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_picture')
+    picture_url = models.CharField(max_length=255, blank=True)
+
+    def upload_profile_picture(self, file):
+        #Delete old picture if exists
+        if self.picture_url:
+            ImageHandler.delete_image(self.picture_url)
+        
+        # Upload new picture
+        self.picture_url = ImageHandler.upload_image(file, self.user.id)
+        self.save(update_fields=['picture_url'])
+
+    @property
+    def get_full_picture_url(self):
+        if self.picture_url:
+            return f"http://localhost:8080/images/{self.picture_url}"
+        return "http://localhost:8080/images/default.jpg"
